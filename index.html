@@ -2,166 +2,137 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Talk Manager 2026 - A3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toolbox Talk 2026 - Mobile</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { 
             --primary: #004085; 
-            --de-bg: #f2f4f5; 
-            --border: #000;
+            --bg: #f8f9fa; 
+            --border: #ccc;
             --danger: #d93025;
             --accent: #e67e22;
             --success: #28a745;
         }
         
+        * { box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; padding: 10px; background: #525659; color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; padding: 10px; background: var(--bg); color: #333; 
         }
 
+        /* Sekcja ustawień - Mobile Friendly */
         .no-print { 
-            background: #fff; padding: 15px 25px; border-radius: 8px; 
-            margin: 0 auto 20px auto; max-width: 1580px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: #fff; padding: 15px; border-radius: 12px; 
+            margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        .section-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+
+        /* Grid miesięcy - 3 kolumny na mobile */
         .months-grid { 
-            display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; margin-bottom: 15px; 
         }
-
         .m-btn { 
-            background: #eee; border: 1px solid #ccc; padding: 6px 2px; 
-            cursor: pointer; text-align: center; font-size: 10px; font-weight: bold; border-radius: 4px;
+            background: #fff; border: 1px solid var(--border); padding: 10px 5px; 
+            cursor: pointer; text-align: center; font-size: 11px; font-weight: bold; border-radius: 8px;
         }
         .m-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        .panel { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
-        .panel-group { display: flex; flex-direction: column; gap: 4px; }
-        
-        label { font-weight: bold; font-size: 11px; color: #555; }
-        input, button { padding: 8px; border: 1px solid #bbb; border-radius: 4px; font-size: 12px; }
-
-        .filter-container {
-            background: #fff; border: 1px solid #bbb; padding: 5px;
-            max-height: 120px; overflow-y: auto; width: 280px; border-radius: 4px;
-        }
-        .filter-item { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; font-size: 11px; }
-        
-        .bulk-actions { display: flex; gap: 5px; margin-bottom: 5px; }
-        .btn-tiny { padding: 4px 8px; font-size: 9px; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; }
-        .btn-tiny:hover { background: #e0e0e0; }
-
-        #printableArea { 
-            width: 1580px; 
-            margin: 0 auto;
-            background: white; 
-            padding: 15px;
-            box-sizing: border-box;
-        }
-        
-        header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 15px; padding-bottom: 10px; position: relative; }
-        
-        .year-badge { position: absolute; top: 0; right: 0; font-size: 24px; font-weight: 900; color: #ddd; }
-
-        table { width: 100%; border-collapse: collapse; table-layout: auto; }
-        th, td { border: 1px solid var(--border); padding: 6px 3px; text-align: center; }
-        
-        th { background: #f0f0f0; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-
-        .col-lp { width: 30px; font-weight: bold; font-size: 11px; }
-        .col-proj { 
-            text-align: left; padding-left: 10px; font-size: 13px; font-weight: bold; 
-            white-space: nowrap; min-width: 320px;
+        /* Panel sterowania */
+        .controls-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        .input-group { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 11px; color: #666; font-weight: bold; }
+        input[type="text"], input[type="number"] { 
+            padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; 
         }
 
-        .delete-btn { 
-            color: #ccc; font-weight: bold; cursor: pointer; margin-right: 8px; 
-            font-size: 16px; text-decoration: none; display: inline-block; width: 15px;
+        /* Lista projektów (scrollowalna) */
+        .filter-box { 
+            border: 1px solid var(--border); border-radius: 8px; padding: 8px; 
+            max-height: 150px; overflow-y: auto; background: #fafafa; margin-bottom: 10px;
         }
-        .delete-btn:hover { color: var(--danger); }
+        .filter-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
 
-        .col-val { width: 90px; }
-        .col-sum { width: 70px; background: #f9f9f9; font-weight: 900; font-size: 14px; }
-        .col-cum { width: 80px; background: #ebf3fb; font-weight: 900; color: var(--primary); font-size: 14px; }
+        /* Tabela z przewijaniem bocznym */
+        .table-container { 
+            width: 100%; overflow-x: auto; background: #fff; border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        #printableArea { min-width: 800px; padding: 10px; background: white; }
+        
+        header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #444; padding: 8px 4px; text-align: center; font-size: 12px; }
+        th { background: #f0f0f0; }
 
-        .row-de { background-color: var(--de-bg) !important; }
-        .cell-zero { background-color: #ffdce0 !important; color: #b21f2d !important; font-weight: bold; }
-
+        .col-proj { text-align: left; min-width: 180px; font-weight: bold; position: sticky; left: 0; background: white; z-index: 10; }
+        .row-de { background-color: #f2f6ff !important; }
+        
+        /* Styl pól wpisywania - duży tekst, łatwe klikanie */
         .cell-input { 
-            width: 100%; border: none; background: transparent; text-align: center; 
-            font-weight: bold; font-size: 14px; outline: none; padding: 0;
+            width: 45px; height: 35px; border: 1px solid #ddd; border-radius: 4px; 
+            text-align: center; font-weight: bold; font-size: 16px; background: #fff;
         }
-        
-        .date-input { width: 100%; font-size: 10px; border: none; background: transparent; text-align: center; cursor: pointer; }
+        .cell-zero { background-color: #ffdce0 !important; color: #b21f2d; }
 
-        .btn { cursor: pointer; border: none; font-weight: bold; color: white; border-radius: 4px; padding: 10px 18px; }
-        .btn-add { background: var(--success); }
+        .btn-main { 
+            width: 100%; padding: 12px; margin-top: 8px; border: none; border-radius: 8px;
+            font-weight: bold; color: white; cursor: pointer; font-size: 14px;
+        }
         .btn-save { background: #333; }
         .btn-pdf { background: var(--accent); }
+        .btn-add { background: var(--success); }
 
-        @media print { 
-            .no-print { display: none !important; } 
-            #printableArea { padding: 0; width: 100%; } 
-        }
+        @media print { .no-print { display: none; } #printableArea { min-width: 100%; } }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <div style="margin-bottom: 10px; font-weight: bold; color: var(--primary);">ROK OPERACYJNY 2026</div>
+    <div class="section-title">Wybierz Miesiąc:</div>
     <div class="months-grid" id="monthNav"></div>
     
-    <div class="panel">
-        <div class="panel-group">
+    <div class="controls-row">
+        <div class="input-group">
             <label>Start (Rzymskie):</label>
-            <input type="text" id="startRoman" style="width:60px" oninput="updateConfig()">
+            <input type="text" id="startRoman" oninput="updateConfig()">
         </div>
-        <div class="panel-group">
-            <label>Ilość kolumn:</label>
-            <input type="number" id="colCount" min="1" max="12" style="width:50px" oninput="updateConfig()">
-        </div>
-        
-        <div class="panel-group">
-            <label>Widoczne projekty:</label>
-            <div class="bulk-actions">
-                <button class="btn-tiny" onclick="selectAllProjects(true)">WSZYSTKO</button>
-                <button class="btn-tiny" onclick="selectOnlyDE()">TYLKO [DE]</button>
-                <button class="btn-tiny" onclick="selectAllProjects(false)">WYCZYŚĆ</button>
-            </div>
-            <div class="filter-container" id="projectFilterList"></div>
-        </div>
-
-        <div class="panel-group">
-            <label>Dodaj nową budowę:</label>
-            <div style="display:flex; gap:5px">
-                <input type="text" id="newProj" placeholder="Nazwa...">
-                <button class="btn-add" onclick="addProject()">DODAJ</button>
-            </div>
-        </div>
-
-        <div style="margin-left: auto; display: flex; gap: 10px;">
-            <button class="btn btn-save" onclick="saveData()">ZAPISZ DANE (2026)</button>
-            <button class="btn btn-pdf" onclick="generatePDF()">POBIERZ PDF (A3)</button>
+        <div class="input-group">
+            <label>Ilość spotkań:</label>
+            <input type="number" id="colCount" oninput="updateConfig()">
         </div>
     </div>
+
+    <div class="section-title">Budowy:</div>
+    <div class="filter-box" id="projectFilterList"></div>
+    
+    <div class="controls-row">
+        <input type="text" id="newProj" placeholder="Nazwa nowej budowy..." style="flex:2">
+        <button class="btn-main btn-add" onclick="addProject()" style="flex:1; margin:0">DODAJ</button>
+    </div>
+
+    <button class="btn-main btn-save" onclick="saveData()">ZAPISZ DANE</button>
+    <button class="btn-main btn-pdf" onclick="generatePDF()">POBIERZ PDF (A3)</button>
 </div>
 
-<div id="printableArea">
-    <header>
-        <div class="year-badge">2026</div>
-        <div style="font-size: 24px; font-weight: 900; letter-spacing: 1px;">ZESTAWIENIE PRZEPROWADZONYCH TOOLBOX TALK</div>
-        <div style="font-size: 12px; color: #555; font-style: italic;">Übersicht über die durchgeführten Toolbox-Gespräche — 2026</div>
-        <div style="margin-top: 10px;">
-            <div id="monthLabel" style="font-size: 16px; font-weight: bold; color: white; background: var(--primary); display: inline-block; padding: 6px 25px; border-radius: 4px;"></div>
-        </div>
-    </header>
+<div class="table-container">
+    <div id="printableArea">
+        <header>
+            <div style="font-size: 18px; font-weight: 900;">TOOLBOX TALK 2026</div>
+            <div id="monthLabel" style="font-size: 14px; font-weight: bold; margin-top: 5px; color: var(--primary);"></div>
+        </header>
 
-    <table id="mainTable">
-        <thead id="tableHead"></thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+        <table id="mainTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -172,17 +143,9 @@
         {pl: "Październik", de: "Oktober"}, {pl: "Listopad", de: "November"}, {pl: "Grudzień", de: "Dezember"}
     ];
 
-    const initialProjects = [
-        "BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV", 
-        "Radzyń -Łuków 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino", 
-        "CPK", "Eksploatacja", "Krosno", "BLP kabel",
-        "Stade [DE]", "UW Semlin [DE]", "Malchow [DE]", "Munsterberg [DE]", "Hamburg [DE]", 
-        "Avacon [DE]", "Borken [DE]", "Karben [DE]", "Frankfurt [DE]", "Siedenbrünzow [DE]"
-    ];
-
     let db = JSON.parse(localStorage.getItem('toolbox_2026_v1')) || {
-        projects: [...initialProjects],
-        selectedProjects: [...initialProjects],
+        projects: ["BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Stade [DE]", "UW Semlin [DE]"],
+        selectedProjects: ["BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Stade [DE]", "UW Semlin [DE]"],
         monthsData: {}
     };
 
@@ -203,7 +166,7 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { startR: "I", count: 5, dates: [], values: {} };
+            db.monthsData[curM] = { startR: "I", count: 4, dates: [], values: {} };
         }
         document.getElementById('startRoman').value = db.monthsData[curM].startR;
         document.getElementById('colCount').value = db.monthsData[curM].count;
@@ -218,7 +181,7 @@
             const div = document.createElement('div');
             div.className = 'filter-item';
             const isChecked = db.selectedProjects.includes(name);
-            div.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleProject('${name.replace(/'/g, "\\'")}')"> <span>${name}</span>`;
+            div.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleProject('${name}')"> <span>${name}</span>`;
             container.appendChild(div);
         });
     }
@@ -227,22 +190,6 @@
         const idx = db.selectedProjects.indexOf(name);
         if (idx > -1) db.selectedProjects.splice(idx, 1);
         else db.selectedProjects.push(name);
-        render();
-    }
-
-    function selectAllProjects(status) {
-        if (status) {
-            db.selectedProjects = [...db.projects];
-        } else {
-            db.selectedProjects = [];
-        }
-        renderFilter();
-        render();
-    }
-
-    function selectOnlyDE() {
-        db.selectedProjects = db.projects.filter(p => p.toUpperCase().includes('[DE]'));
-        renderFilter();
         render();
     }
 
@@ -263,7 +210,7 @@
     }
 
     function intToRoman(num) {
-        const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+        const lookup = {X:10,IX:9,V:5,IV:4,I:1};
         let roman = '';
         for (let i in lookup) { while (num >= lookup[i]) { roman += i; num -= lookup[i]; } }
         return roman;
@@ -271,44 +218,38 @@
 
     function render() {
         const mData = db.monthsData[curM];
-        document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} / ${months[curM].de.toUpperCase()} 2026`;
+        document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} 2026`;
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
         const startInt = romanToInt(mData.startR);
 
-        let h1 = `<tr><th rowspan="2" class="col-lp">LP</th><th rowspan="2" class="col-proj">PROJEKT / PROJEKT</th>`;
+        let h1 = `<tr><th rowspan="2">LP</th><th rowspan="2" class="col-proj">PROJEKT</th>`;
         let h2 = `<tr>`;
         for(let i=0; i<mData.count; i++) {
-            h1 += `<th class="col-val">${intToRoman(startInt + i)}</th>`;
-            h2 += `<th class="col-val"><input type="date" class="date-input" value="${mData.dates[i] || ''}" onchange="db.monthsData[${curM}].dates[${i}]=this.value"></th>`;
+            h1 += `<th>${intToRoman(startInt + i)}</th>`;
+            h2 += `<th><input type="text" placeholder="Data" style="width:40px;font-size:9px;border:none" value="${mData.dates[i] || ''}" onchange="db.monthsData[${curM}].dates[${i}]=this.value"></th>`;
         }
-        h1 += `<th rowspan="2" class="col-sum">SUMA MIES.</th><th rowspan="2" class="col-cum">NARAST. (YTD)</th></tr>`;
+        h1 += `<th>SUMA</th><th>YTD</th></tr>`;
         h2 += `</tr>`;
         head.innerHTML = h1 + h2;
 
         body.innerHTML = '';
         let lp = 1;
-        db.projects.forEach((name, pIdx) => {
+        db.projects.forEach((name) => {
             if (!db.selectedProjects.includes(name)) return;
-            const isDE = name.toUpperCase().includes('[DE]');
             const tr = document.createElement('tr');
-            if(isDE) tr.className = 'row-de';
+            if(name.includes('[DE]')) tr.className = 'row-de';
 
             const rowVals = mData.values[name] || Array(mData.count).fill('');
             let mSum = rowVals.reduce((a, b) => a + (parseFloat(b) || 0), 0);
             let cSum = calculateCum(name, curM, mSum);
 
-            let rowHtml = `<td class="col-lp">${lp++}</td>
-                           <td class="col-proj">
-                               <span class="no-print delete-btn" onclick="removeProject(${pIdx})">×</span>${name}
-                           </td>`;
+            let rowHtml = `<td>${lp++}</td><td class="col-proj">${name}</td>`;
             for(let i=0; i<mData.count; i++) {
                 const val = rowVals[i] || '';
-                rowHtml += `<td class="col-val ${val === '0' ? 'cell-zero' : ''}">
-                    <input type="text" class="cell-input" value="${val}" oninput="updateCell('${name.replace(/'/g, "\\'")}', ${i}, this.value)">
-                </td>`;
+                rowHtml += `<td><input type="text" inputmode="numeric" class="cell-input ${val === '0' ? 'cell-zero' : ''}" value="${val}" oninput="updateCell('${name}', ${i}, this.value)"></td>`;
             }
-            rowHtml += `<td class="col-sum">${mSum || ''}</td><td class="col-cum">${cSum || ''}</td>`;
+            rowHtml += `<td style="font-weight:bold">${mSum || ''}</td><td style="color:var(--primary); font-weight:bold">${cSum || ''}</td>`;
             tr.innerHTML = rowHtml;
             body.appendChild(tr);
         });
@@ -317,7 +258,8 @@
     function updateCell(proj, cIdx, val) {
         if(!db.monthsData[curM].values[proj]) db.monthsData[curM].values[proj] = [];
         db.monthsData[curM].values[proj][cIdx] = val;
-        render();
+        // Re-render bez przeładowania całego widoku dla płynności
+        render(); 
     }
 
     function calculateCum(proj, mIdx, curSum) {
@@ -340,47 +282,17 @@
         }
     }
 
-    function removeProject(idx) {
-        if(confirm("Usunąć budowę z listy?")) {
-            const name = db.projects[idx];
-            db.projects.splice(idx, 1);
-            db.selectedProjects = db.selectedProjects.filter(p => p !== name);
-            renderFilter(); render();
-        }
-    }
-
     function saveData() {
         localStorage.setItem('toolbox_2026_v1', JSON.stringify(db));
-        alert("Dane na rok 2026 zostały zapisane!");
+        alert("Zapisano!");
     }
 
     function generatePDF() {
-        const { jsPDF } = window.jspdf;
         const area = document.getElementById('printableArea');
-        const btns = document.querySelectorAll('.delete-btn');
-        btns.forEach(b => b.style.display = 'none');
-
-        html2canvas(area, { 
-            scale: 2.5,
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        }).then(canvas => {
-            const pdf = new jsPDF('l', 'mm', 'a3');
-            const imgData = canvas.toDataURL('image/png');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            const margin = 5;
-            const imgProps = pdf.getImageProperties(imgData);
-            const ratio = Math.min((pdfWidth - (2*margin)) / imgProps.width, (pdfHeight - (2*margin)) / imgProps.height);
-            
-            const newWidth = imgProps.width * ratio;
-            const newHeight = imgProps.height * ratio;
-
-            pdf.addImage(imgData, 'PNG', (pdfWidth - newWidth) / 2, margin, newWidth, newHeight);
-            pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
-            
-            btns.forEach(b => b.style.display = 'inline-block');
+        html2canvas(area, { scale: 2 }).then(canvas => {
+            const pdf = new jspdf.jsPDF('l', 'mm', 'a3');
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 400, 0);
+            pdf.save(`Toolbox_2026_${curM+1}.pdf`);
         });
     }
 
