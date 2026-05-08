@@ -13,6 +13,7 @@
             --border: #000;
             --danger: #d93025;
             --accent: #e67e22;
+            --success: #28a745;
         }
         
         body { 
@@ -44,9 +45,13 @@
 
         .filter-container {
             background: #fff; border: 1px solid #bbb; padding: 5px;
-            max-height: 100px; overflow-y: auto; width: 250px; border-radius: 4px;
+            max-height: 120px; overflow-y: auto; width: 280px; border-radius: 4px;
         }
         .filter-item { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; font-size: 11px; }
+        
+        .bulk-actions { display: flex; gap: 5px; margin-bottom: 5px; }
+        .btn-tiny { padding: 4px 8px; font-size: 9px; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; }
+        .btn-tiny:hover { background: #e0e0e0; }
 
         #printableArea { 
             width: 1580px; 
@@ -92,7 +97,7 @@
         .date-input { width: 100%; font-size: 10px; border: none; background: transparent; text-align: center; cursor: pointer; }
 
         .btn { cursor: pointer; border: none; font-weight: bold; color: white; border-radius: 4px; padding: 10px 18px; }
-        .btn-add { background: #28a745; }
+        .btn-add { background: var(--success); }
         .btn-save { background: #333; }
         .btn-pdf { background: var(--accent); }
 
@@ -120,6 +125,11 @@
         
         <div class="panel-group">
             <label>Widoczne projekty:</label>
+            <div class="bulk-actions">
+                <button class="btn-tiny" onclick="selectAllProjects(true)">WSZYSTKO</button>
+                <button class="btn-tiny" onclick="selectOnlyDE()">TYLKO [DE]</button>
+                <button class="btn-tiny" onclick="selectAllProjects(false)">WYCZYŚĆ</button>
+            </div>
             <div class="filter-container" id="projectFilterList"></div>
         </div>
 
@@ -170,7 +180,6 @@
         "Avacon [DE]", "Borken [DE]", "Karben [DE]", "Frankfurt [DE]", "Siedenbrünzow [DE]"
     ];
 
-    // Klucz bazy danych zawiera rok 2026
     let db = JSON.parse(localStorage.getItem('toolbox_2026_v1')) || {
         projects: [...initialProjects],
         selectedProjects: [...initialProjects],
@@ -218,6 +227,22 @@
         const idx = db.selectedProjects.indexOf(name);
         if (idx > -1) db.selectedProjects.splice(idx, 1);
         else db.selectedProjects.push(name);
+        render();
+    }
+
+    function selectAllProjects(status) {
+        if (status) {
+            db.selectedProjects = [...db.projects];
+        } else {
+            db.selectedProjects = [];
+        }
+        renderFilter();
+        render();
+    }
+
+    function selectOnlyDE() {
+        db.selectedProjects = db.projects.filter(p => p.toUpperCase().includes('[DE]'));
+        renderFilter();
         render();
     }
 
@@ -271,8 +296,6 @@
 
             const rowVals = mData.values[name] || Array(mData.count).fill('');
             let mSum = rowVals.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            
-            // Logika kumulatywna (YTD)
             let cSum = calculateCum(name, curM, mSum);
 
             let rowHtml = `<td class="col-lp">${lp++}</td>
@@ -299,7 +322,6 @@
 
     function calculateCum(proj, mIdx, curSum) {
         let total = 0;
-        // Pętla po wszystkich poprzednich miesiącach
         for(let i=0; i<mIdx; i++) {
             if(db.monthsData[i] && db.monthsData[i].values[proj]) {
                 const prevMonthVals = db.monthsData[i].values[proj];
@@ -329,7 +351,7 @@
 
     function saveData() {
         localStorage.setItem('toolbox_2026_v1', JSON.stringify(db));
-        alert("Dane na rok 2026 zostały zapisane w pamięci przeglądarki!");
+        alert("Dane na rok 2026 zostały zapisane!");
     }
 
     function generatePDF() {
