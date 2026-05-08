@@ -18,7 +18,6 @@
         * { box-sizing: border-box; }
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; background: var(--bg); }
 
-        /* Panel sterowania */
         .no-print-zone { 
             background: #fff; padding: 15px; border-radius: 8px; 
             margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -27,16 +26,14 @@
         .admin-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; }
         .input-group { display: flex; gap: 8px; margin-top: 5px; }
 
-        /* Styl filtra "ptaszków" */
         .filter-container {
             background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 5px;
             max-height: 150px; overflow-y: auto; font-size: 12px;
         }
         .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; cursor: pointer; }
 
-        /* Tabela i Arkusz A3 */
         #printableArea { 
-            width: 1580px; /* Szerokość pod A3 w orientacji poziomej */
+            width: 1580px; 
             background: white; 
             padding: 30px;
             margin: 0 auto;
@@ -62,6 +59,7 @@
         .btn-save { background: var(--primary); }
         .btn-pdf { background: var(--accent); }
         .btn-add { background: var(--success); }
+        .btn-de { background: #444; margin-top: 5px; font-size: 10px; padding: 5px; }
         .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; }
         .btn:hover { opacity: 0.8; }
 
@@ -91,12 +89,13 @@
             <div class="input-group" style="margin-top: 10px;">
                 <input type="text" id="searchProj" placeholder="Filtruj listę tekstem..." oninput="renderTable()" style="flex-grow:1; padding: 8px;">
             </div>
+            <button class="btn btn-de" onclick="filterDE()">POKAŻ TYLKO NIEMCY (DE)</button>
+            <button class="btn btn-de" style="background:#888" onclick="resetFilter()">POKAŻ WSZYSTKO</button>
         </div>
 
         <div>
             <label style="font-weight: bold; font-size: 12px;">WIDOCZNOŚĆ PROJEKTÓW:</label>
-            <div id="filterCheckboxes" class="filter-container">
-                </div>
+            <div id="filterCheckboxes" class="filter-container"></div>
         </div>
 
         <div style="text-align: right;">
@@ -132,7 +131,6 @@
         {pl: "Październik", de: "Oktober"}, {pl: "Listopad", de: "November"}, {pl: "Grudzień", de: "Dezember"}
     ];
 
-    // Baza danych z obsługą widoczności (visibleProjects)
     let db = JSON.parse(localStorage.getItem('toolbox_2026_a3')) || { 
         projects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
         visibleProjects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
@@ -161,8 +159,11 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), values: {} };
+            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), colTitles: Array(15).fill(''), values: {} };
         }
+        // Kompatybilność wsteczna dla starych zapisów bez colTitles
+        if (!db.monthsData[curM].colTitles) db.monthsData[curM].colTitles = Array(15).fill('');
+        
         document.getElementById('colCount').value = db.monthsData[curM].count;
         renderFilterList();
         renderTable();
@@ -171,17 +172,25 @@
     function renderFilterList() {
         const container = document.getElementById('filterCheckboxes');
         container.innerHTML = '';
-        
         db.projects.forEach(proj => {
             const isChecked = db.visibleProjects.includes(proj);
             const label = document.createElement('label');
             label.className = 'filter-item';
-            label.innerHTML = `
-                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVisibility('${proj}')">
-                ${proj}
-            `;
+            label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVisibility('${proj}')"> ${proj}`;
             container.appendChild(label);
         });
+    }
+
+    function filterDE() {
+        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY'));
+        renderFilterList();
+        renderTable();
+    }
+
+    function resetFilter() {
+        db.visibleProjects = [...db.projects];
+        renderFilterList();
+        renderTable();
     }
 
     function toggleVisibility(proj) {
@@ -197,7 +206,7 @@
         const name = document.getElementById('newProjName').value.trim();
         if (name && !db.projects.includes(name)) {
             db.projects.push(name);
-            db.visibleProjects.push(name); // Nowy projekt domyślnie widoczny
+            db.visibleProjects.push(name);
             db.projects.sort();
             document.getElementById('newProjName').value = '';
             renderFilterList();
@@ -227,41 +236,36 @@
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
 
-        // Nagłówek
+        // Nagłówek z edytowalnym tytułem Toolbox
         let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
             let dateVal = mData.colDates[i] || '';
-            hRow += `<th>Spotkanie ${i+1}<br><input type="date" class="cell-input" style="font-size:10px;" value="${dateVal}" oninput="db.monthsData[${curM}].colDates[${i}]=this.value"></th>`;
+            let titleVal = mData.colTitles[i] || `Nr ${i+1}`;
+            hRow += `<th>
+                <input type="text" class="cell-input" style="font-size:11px; margin-bottom:2px;" value="${titleVal}" onchange="db.monthsData[${curM}].colTitles[${i}]=this.value">
+                <input type="date" class="cell-input" style="font-size:10px;" value="${dateVal}" oninput="db.monthsData[${curM}].colDates[${i}]=this.value">
+            </th>`;
         }
         hRow += `<th class="col-sum">M-C</th><th class="col-sum">YTD</th></tr>`;
         head.innerHTML = hRow;
 
         body.innerHTML = '';
-        
-        // Filtrowanie: tylko te, które są zaznaczone w checkboxach ORAZ pasują do wyszukiwarki
-        const filteredProjects = db.projects.filter(p => 
-            db.visibleProjects.includes(p) && 
-            p.toLowerCase().includes(searchText)
-        );
+        const filteredProjects = db.projects.filter(p => db.visibleProjects.includes(p) && p.toLowerCase().includes(searchText));
 
         filteredProjects.forEach((name, idx) => {
             if (!mData.values[name]) mData.values[name] = Array(15).fill('');
             const rowVals = mData.values[name];
             
-            // Suma miesiąca
             let mSum = rowVals.slice(0, mData.count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            
-            // Suma YTD (od początku roku do wybranego miesiąca)
             let ytd = 0;
             for(let i=0; i <= curM; i++) {
                 if(db.monthsData[i] && db.monthsData[i].values[name]) {
-                    const countForThatMonth = db.monthsData[i].count || 5;
-                    ytd += db.monthsData[i].values[name].slice(0, countForThatMonth).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                    const countForMonth = db.monthsData[i].count || 5;
+                    ytd += db.monthsData[i].values[name].slice(0, countForMonth).reduce((a, b) => a + (parseFloat(b) || 0), 0);
                 }
             }
 
             const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY');
-
             const tr = document.createElement('tr');
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
@@ -270,7 +274,8 @@
                         </td>`;
             
             for(let i=0; i < mData.count; i++) {
-                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" oninput="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
+                // Używamy onchange zamiast oninput, aby pozwolić na wpisanie dwóch cyfr bez przerywania
+                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
             html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary)">${ytd}</td>`;
             tr.innerHTML = html;
@@ -280,36 +285,25 @@
 
     function saveData() {
         localStorage.setItem('toolbox_2026_a3', JSON.stringify(db));
-        alert("Dane i ustawienia filtrów zostały zapisane!");
+        alert("Dane zapisane pomyślnie!");
     }
 
     function generatePDF() {
         const area = document.getElementById('printableArea');
         const delButtons = document.querySelectorAll('.btn-del');
-        
-        // Ukryj przyciski usuwania i krawędzie inputów do PDF
         delButtons.forEach(b => b.style.display = 'none');
 
-        html2canvas(area, { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            width: 1580
-        }).then(canvas => {
+        html2canvas(area, { scale: 2, useCORS: true, width: 1580 }).then(canvas => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a3');
             const imgData = canvas.toDataURL('image/png');
-            
-            // Marginesy 5mm, szerokość dopasowana do A3 (420mm)
             pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
             pdf.save(`Toolbox_Talk_2026_${months[curM].pl}.pdf`);
-            
             delButtons.forEach(b => b.style.display = 'block');
         });
     }
 
     window.onload = init;
 </script>
-
 </body>
 </html>
