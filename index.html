@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - A3 PRO</title>
+    <title>Toolbox Manager 2026 - A3 Compact</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -16,68 +16,65 @@
         }
         
         * { box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; background: var(--bg); }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 5px; background: var(--bg); font-size: 13px; }
 
         .no-print-zone { 
-            background: #fff; padding: 15px; border-radius: 8px; 
-            margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #fff; padding: 10px; border-radius: 8px; 
+            margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .admin-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; }
-        .input-group { display: flex; gap: 8px; margin-top: 5px; }
+        .admin-grid { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 15px; }
+        .input-group { display: flex; gap: 5px; margin-top: 5px; }
 
         .filter-container {
-            background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 5px;
-            max-height: 150px; overflow-y: auto; font-size: 12px;
+            background: #f9f9f9; border: 1px solid #ddd; padding: 5px; border-radius: 5px;
+            max-height: 120px; overflow-y: auto; font-size: 11px;
         }
-        .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; cursor: pointer; }
+        .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; cursor: pointer; }
 
         #printableArea { 
-            width: 1580px; 
+            width: 1550px; 
             background: white; 
-            padding: 30px;
+            padding: 20px;
             margin: 0 auto;
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #444; padding: 10px 4px; text-align: center; overflow: hidden; }
-        th { background: #eee; font-size: 14px; text-transform: uppercase; }
+        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; overflow: hidden; height: 32px; }
+        th { background: #f0f0f0; font-size: 12px; font-weight: bold; }
         
-        .col-lp { width: 45px; }
-        .col-proj { width: 400px; text-align: left !important; padding-left: 10px; font-weight: bold; font-size: 16px; }
-        .col-sum { width: 95px; background: #f2f2f2; font-weight: bold; }
+        .col-lp { width: 35px; }
+        .col-proj { width: 380px; text-align: left !important; padding-left: 8px; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-sum { width: 85px; background: #f9f9f9; font-weight: bold; }
 
-        .cell-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-size: 18px; font-weight: bold; }
+        .cell-input { width: 95%; padding: 4px; border: 1px solid #ddd; text-align: center; font-size: 16px; font-weight: bold; }
         .header-input { 
-            width: 95%; border: 1px solid transparent; background: transparent; 
-            text-align: center; font-size: 24px; font-weight: 900; color: var(--primary); 
-            text-transform: uppercase;
+            width: 100%; border: none; background: transparent; 
+            text-align: center; font-size: 18px; font-weight: 900; color: var(--primary); 
         }
-        .header-input:focus { background: #fff; border-color: var(--accent); outline: none; }
+        .header-input:focus { background: #fff; outline: 1px solid var(--accent); }
 
         .tag-de { 
             display: inline-block; background: #000; color: #ffce00; 
-            padding: 2px 5px; font-size: 10px; font-weight: bold; border-radius: 3px; margin-left: 5px;
+            padding: 1px 4px; font-size: 9px; font-weight: bold; border-radius: 2px; margin-left: 4px;
         }
 
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; }
         .btn-save { background: var(--primary); }
         .btn-pdf { background: var(--accent); }
         .btn-add { background: var(--success); }
-        .btn-de { background: #444; margin-top: 5px; font-size: 10px; padding: 5px; }
-        .btn-del { background: none; color: var(--danger); font-size: 24px; border: none; cursor: pointer; float: right; line-height: 1; }
-        .btn:hover { opacity: 0.8; }
+        .btn-de { background: #555; margin-top: 3px; font-size: 10px; padding: 4px 8px; }
+        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; float: right; padding: 0; margin-right: 5px; }
 
-        .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; }
-        .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 10px; }
+        .m-btn { padding: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; font-weight: bold; }
         .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .footer-row { background: #eee; font-weight: bold; font-size: 18px; }
+        .footer-row { background: #eee; font-weight: bold; font-size: 16px; }
 
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
-            body { background: white; padding: 0; }
-            #printableArea { width: 100%; border: none; }
+            #printableArea { width: 100%; padding: 0; }
         }
     </style>
 </head>
@@ -85,43 +82,39 @@
 
 <div class="no-print-zone">
     <div class="months-nav" id="monthNav"></div>
-    
     <div class="admin-grid">
         <div>
-            <label style="font-weight: bold; font-size: 12px;">DODAJ LUB SZUKAJ:</label>
+            <label>PROJEKT:</label>
             <div class="input-group">
-                <input type="text" id="newProjName" placeholder="Nazwa nowego projektu..." style="flex-grow:1; padding: 8px;">
+                <input type="text" id="newProjName" placeholder="Nazwa..." style="flex-grow:1; padding: 5px;">
                 <button class="btn btn-add" onclick="addNewProject()">DODAJ</button>
             </div>
-            <div class="input-group" style="margin-top: 10px;">
-                <input type="text" id="searchProj" placeholder="Filtruj listę tekstem..." oninput="renderTable()" style="flex-grow:1; padding: 8px;">
+            <div class="input-group">
+                <input type="text" id="searchProj" placeholder="Szukaj..." oninput="renderTable()" style="flex-grow:1; padding: 5px;">
             </div>
-            <button class="btn btn-de" onclick="filterDE()">POKAŻ TYLKO NIEMCY (DE)</button>
-            <button class="btn btn-de" style="background:#888" onclick="resetFilter()">POKAŻ WSZYSTKO</button>
+            <button class="btn btn-de" onclick="filterDE()">TYLKO DE</button>
+            <button class="btn btn-de" style="background:#888" onclick="resetFilter()">WSZYSTKO</button>
         </div>
-
         <div>
-            <label style="font-weight: bold; font-size: 12px;">WIDOCZNOŚĆ PROJEKTÓW:</label>
+            <label>WIDOCZNOŚĆ:</label>
             <div id="filterCheckboxes" class="filter-container"></div>
         </div>
-
         <div style="text-align: right;">
-            <label style="font-weight: bold; font-size: 12px;">LICZBA KOLUMN:</label><br>
-            <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:8px; width:60px; margin-bottom: 10px;">
-            <br>
-            <button class="btn btn-save" onclick="saveData()">ZAPISZ BAZĘ</button>
-            <button class="btn btn-pdf" onclick="generatePDF()">POBIERZ A3 PDF</button>
+            <label>KOLUMNY:</label>
+            <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:5px; width:50px;">
+            <button class="btn btn-save" onclick="saveData()">ZAPISZ</button>
+            <button class="btn btn-pdf" onclick="generatePDF()">PDF A3</button>
         </div>
     </div>
 </div>
 
 <div id="printableArea">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 4px solid var(--primary); padding-bottom: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 3px solid var(--primary); padding-bottom: 5px;">
         <div>
-            <h1 style="margin:0; font-size: 32px; letter-spacing: 1px;">ZESTAWIENIE TOOLBOX TALK</h1>
-            <p style="margin:0; color: #444; font-size: 14px; font-weight: bold; text-transform: uppercase;">Übersicht der Sicherheitsunterweisungen</p>
+            <h1 style="margin:0; font-size: 24px;">ZESTAWIENIE TOOLBOX TALK 2026</h1>
+            <p style="margin:0; color: #444; font-size: 12px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen</p>
         </div>
-        <div id="monthLabel" style="font-size: 26px; font-weight: 900; color: var(--primary);"></div>
+        <div id="monthLabel" style="font-size: 22px; font-weight: 900; color: var(--primary);"></div>
     </div>
 
     <table id="mainTable">
@@ -140,19 +133,27 @@
     ];
 
     function toRoman(num) {
+        if (num < 1) return "";
         const map = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
         let result = '';
-        let n = num;
         for (let key in map) {
-            while (n >= map[key]) {
-                result += key;
-                n -= map[key];
-            }
+            while (num >= map[key]) { result += key; num -= map[key]; }
         }
         return result;
     }
 
-    const initialProjects = [
+    function fromRoman(roman) {
+        const map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+        let total = 0;
+        for (let i = 0; i < roman.length; i++) {
+            let current = map[roman[i].toUpperCase()];
+            let next = map[roman[i+1]?.toUpperCase()];
+            if (next > current) { total -= current; } else { total += current; }
+        }
+        return total || 0;
+    }
+
+    let initialProjects = [
         "BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV",
         "Radzyń - Łuków LE 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino",
         "Stade DE", "CPK", "Eksploatacja", "BLP kabel", "Malchow Munsterberg DE", 
@@ -161,7 +162,7 @@
         "Ketten weschel Karbrn DE"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_final_v3')) || { 
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_compact_v4')) || { 
         projects: initialProjects.sort(),
         visibleProjects: [...initialProjects],
         monthsData: {} 
@@ -188,23 +189,23 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colTitles: [], values: {} };
+            db.monthsData[curM] = { count: 5, colTitles: Array.from({length: 15}, (_, i) => toRoman(i + 1)), values: {} };
         }
-        const mData = db.monthsData[curM];
-        if (!mData.colTitles || mData.colTitles.length === 0) {
-            mData.colTitles = Array.from({length: 15}, (_, i) => toRoman(i + 1));
-        }
-        document.getElementById('colCount').value = mData.count;
+        document.getElementById('colCount').value = db.monthsData[curM].count || 5;
         renderFilterList();
         renderTable();
     }
 
-    // AUTO-UZUPEŁNIANIE - uruchamia się przy zmianie lub double clicku
-    function triggerAutoFill(idx) {
+    function triggerAutoFill(idx, newVal) {
         const mData = db.monthsData[curM];
-        // Jeśli użytkownik wpisze coś w pole, zaczynamy od tego numeru generować kolejne rzymskie
-        for (let i = idx + 1; i < 15; i++) {
-            mData.colTitles[i] = toRoman(i + 1);
+        mData.colTitles[idx] = newVal;
+        
+        let startNum = fromRoman(newVal);
+        if (startNum > 0) {
+            for (let i = idx + 1; i < 15; i++) {
+                startNum++;
+                mData.colTitles[i] = toRoman(startNum);
+            }
         }
         renderTable();
     }
@@ -218,17 +219,14 @@
         const body = document.getElementById('tableBody');
         const foot = document.getElementById('tableFoot');
 
-        // Nagłówek
         let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
-            let titleVal = mData.colTitles[i] || toRoman(i+1);
             hRow += `<th>
-                <input type="text" class="header-input" value="${titleVal}" 
-                       onchange="db.monthsData[${curM}].colTitles[${i}]=this.value; triggerAutoFill(${i})"
-                       ondblclick="triggerAutoFill(${i})">
+                <input type="text" class="header-input" value="${mData.colTitles[i]}" 
+                       onchange="triggerAutoFill(${i}, this.value)">
             </th>`;
         }
-        hRow += `<th class="col-sum">MIESIĄC<br><small>MONAT</small></th><th class="col-sum">ROCZNIE<br><small>JÄHRLICH</small></th></tr>`;
+        hRow += `<th class="col-sum">MONAT</th><th class="col-sum">JÄHRLICH</th></tr>`;
         head.innerHTML = hRow;
 
         body.innerHTML = '';
@@ -251,11 +249,10 @@
                 }
             }
 
-            grandMonthTotal += mSum;
-            grandYTDTotal += ytd;
+            grandMonthTotal += mSum; grandYTDTotal += ytd;
             for(let i=0; i<mData.count; i++) colTotals[i] += (parseFloat(rowVals[i]) || 0);
 
-            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY');
+            const isDE = name.toUpperCase().includes('DE');
             const tr = document.createElement('tr');
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
@@ -266,17 +263,14 @@
             for(let i=0; i < mData.count; i++) {
                 html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
-            html += `<td class="col-sum" style="font-size:20px;">${mSum}</td><td class="col-sum" style="color:var(--primary); font-size:20px;">${ytd}</td>`;
+            html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary);">${ytd}</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
 
-        let fRow = `<tr class="footer-row">
-            <td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
-        for(let i=0; i < mData.count; i++) {
-            fRow += `<td style="font-size:22px;">${colTotals[i]}</td>`;
-        }
-        fRow += `<td style="font-size:22px;">${grandMonthTotal}</td><td style="color:var(--primary); font-size:22px;">${grandYTDTotal}</td></tr>`;
+        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:10px;">SUMA:</td>`;
+        for(let i=0; i < mData.count; i++) fRow += `<td>${colTotals[i]}</td>`;
+        fRow += `<td>${grandMonthTotal}</td><td style="color:var(--primary);">${grandYTDTotal}</td></tr>`;
         foot.innerHTML = fRow;
     }
 
@@ -293,11 +287,8 @@
     }
 
     function toggleVisibility(proj) {
-        if (db.visibleProjects.includes(proj)) {
-            db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
-        } else {
-            db.visibleProjects.push(proj);
-        }
+        if (db.visibleProjects.includes(proj)) db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
+        else db.visibleProjects.push(proj);
         renderTable();
     }
 
@@ -313,13 +304,12 @@
             db.visibleProjects.push(name);
             db.projects.sort();
             document.getElementById('newProjName').value = '';
-            renderFilterList();
-            renderTable();
+            renderFilterList(); renderTable();
         }
     }
 
     function removeProject(name) {
-        if (confirm(`Usunąć projekt ${name} na stałe?`)) {
+        if (confirm(`Usunąć ${name}?`)) {
             db.projects = db.projects.filter(p => p !== name);
             db.visibleProjects = db.visibleProjects.filter(p => p !== name);
             renderTable();
@@ -327,7 +317,7 @@
     }
 
     function filterDE() {
-        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY') || p.toLowerCase().includes('hamburg') || p.toLowerCase().includes('semlin'));
+        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY') || p.toLowerCase().includes('hamburg'));
         renderFilterList(); renderTable();
     }
 
@@ -337,8 +327,8 @@
     }
 
     function saveData() {
-        localStorage.setItem('toolbox_2026_final_v3', JSON.stringify(db));
-        alert("Baza została zapisana!");
+        localStorage.setItem('toolbox_2026_compact_v4', JSON.stringify(db));
+        alert("Zapisano pomyślnie!");
     }
 
     function generatePDF() {
@@ -346,11 +336,10 @@
         const delBtns = document.querySelectorAll('.btn-del');
         delBtns.forEach(b => b.style.display = 'none');
 
-        html2canvas(area, { scale: 2, useCORS: true, width: 1580 }).then(canvas => {
+        html2canvas(area, { scale: 2, width: 1550 }).then(canvas => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a3');
-            const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 10, 410, 0); 
             pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
             delBtns.forEach(b => b.style.display = 'block');
         });
