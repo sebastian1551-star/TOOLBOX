@@ -2,8 +2,8 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - FULL PERSISTENT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toolbox Manager 2026 - Mobile Ready</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -20,67 +20,125 @@
         }
         
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 5px; background: var(--bg); font-size: 13px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 5px; background: var(--bg); font-size: 14px; }
 
+        /* GÓRNY PANEL STEROWANIA */
         .no-print-zone { 
-            background: #fff; padding: 15px; border-radius: 8px; 
+            background: #fff; padding: 12px; border-radius: 8px; 
             margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .admin-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 15px; }
+        /* NAWIGACJA MIESIĘCY */
+        .months-nav { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 8px; 
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
+        }
+        .months-nav::-webkit-scrollbar { height: 4px; }
+        .months-nav::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        .m-btn { 
+            flex: 0 0 auto;
+            padding: 10px 18px; 
+            border: 1px solid #ddd; 
+            background: #fff; 
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: bold; 
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+
+        /* ADMIN GRID */
+        .admin-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
+        @media (min-width: 900px) {
+            .admin-grid { grid-template-columns: 1.2fr 1fr 1fr; }
+        }
+
         .input-group { display: flex; gap: 5px; margin-top: 5px; }
+        .input-group input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; }
 
         .filter-container {
-            background: #f9f9f9; border: 1px solid #ddd; padding: 5px; border-radius: 5px;
-            max-height: 150px; overflow-y: auto; font-size: 11px;
+            background: #f9f9f9; border: 1px solid #ddd; padding: 8px; border-radius: 5px;
+            max-height: 120px; overflow-y: auto; font-size: 12px;
         }
-        .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; cursor: pointer; }
+        .filter-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #eee; }
+
+        /* TABELA */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: relative;
+        }
 
         #printableArea { 
-            width: 1550px; 
-            background: white; 
-            padding: 20px;
-            margin: 0 auto;
+            min-width: 1000px;
+            padding: 15px;
         }
 
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; height: 38px; }
-        th { background: #f0f0f0; font-size: 11px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; border: 2px solid #333; }
+        th, td { border: 1px solid #bbb; padding: 6px 4px; text-align: center; position: relative; }
+        th { background: #f0f0f0; font-size: 11px; }
         
-        .col-lp { width: 35px; }
-        .col-proj { width: 380px; text-align: left !important; padding-left: 8px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
-        .col-sum { width: 95px; background: #f9f9f9; font-weight: bold; }
+        .col-lp { width: 40px; }
+        .col-proj { width: 300px; text-align: left !important; padding-left: 10px; font-weight: bold; }
+        .col-sum { width: 85px; background: #f9f9f9; font-weight: bold; }
 
-        .cell-input { width: 90%; padding: 4px; border: 1px solid #ccc; text-align: center; font-size: 16px; font-weight: bold; border-radius: 3px; }
-        .cell-input:focus { border-color: var(--primary); outline: none; background: #fffde7; }
-        
-        .header-input { 
-            width: 100%; border: none; background: transparent; 
-            text-align: center; font-size: 18px; font-weight: 900; color: var(--primary); 
+        /* INPUTY I TOOLTIP */
+        .cell-input { width: 90%; padding: 6px; border: 1px solid #ccc; text-align: center; font-size: 16px; font-weight: bold; border-radius: 4px; transition: 0.2s; }
+        .cell-input:focus { border-color: var(--accent); background: #fffde7; outline: none; }
+
+        /* Styl podświetlenia wiersza */
+        tr:has(.cell-input:focus) { background-color: #fff9c4 !important; }
+
+        /* DYMEK PODPOWIEDZI */
+        .input-tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+        .cell-wrapper:hover .input-tooltip, 
+        .cell-input:focus + .input-tooltip { display: block; }
 
-        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; }
+        .header-input { width: 100%; border: none; background: transparent; text-align: center; font-size: 16px; font-weight: 900; color: var(--primary); }
+
+        /* PRZYCISKI */
+        .btn { padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; font-size: 12px; min-height: 44px; }
         .btn-save { background: var(--success); }
         .btn-pdf { background: var(--accent); }
         .btn-excel { background: var(--excel); }
         .btn-add { background: var(--primary); }
-        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; float: right; padding: 0; }
+        .btn-del { background: none; color: var(--danger); font-size: 20px; border: none; font-weight: bold; }
 
-        .tag-de { 
-            background: #000; color: #ffce00; padding: 2px 5px; 
-            font-size: 10px; font-weight: 900; border-radius: 3px; 
-            margin-left: 6px; border: 1px solid #ffce00;
-        }
+        .tag-de { background: #000; color: #ffce00; padding: 2px 5px; font-size: 10px; border-radius: 3px; margin-left: 5px; }
+        .footer-row { background: #eee; font-weight: bold; font-size: 16px; }
 
-        .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 10px; }
-        .m-btn { padding: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 4px; }
-        .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .footer-row { background: #eee; font-weight: bold; font-size: 16px; border-top: 2px solid #000; }
-        
         @media print {
-            .no-print-zone, .btn-del { display: none !important; }
-            #printableArea { width: 100%; padding: 0; }
+            .no-print-zone, .btn-del, .input-tooltip { display: none !important; }
+            #printableArea { width: 100%; min-width: auto; padding: 0; }
+            .table-responsive { overflow: visible; }
         }
     </style>
 </head>
@@ -88,53 +146,56 @@
 
 <div class="no-print-zone">
     <div class="months-nav" id="monthNav"></div>
+
     <div class="admin-grid">
         <div>
             <label><strong>PROJEKT / BAUVORHABEN:</strong></label>
             <div class="input-group">
-                <input type="text" id="newProjName" placeholder="Nazwa projektu..." style="flex-grow:1; padding: 8px;">
-                <button class="btn btn-add" onclick="addNewProject()">DODAJ / ZUFÜGEN</button>
+                <input type="text" id="newProjName" placeholder="Nazwa projektu...">
+                <button class="btn btn-add" onclick="addNewProject()">DODAJ</button>
             </div>
-            <div style="margin-top: 10px;">
-                <button class="btn" style="background:#555" onclick="filterDE()">TYLKO DE</button>
-                <button class="btn" style="background:#888" onclick="resetFilter()">WSZYSTKO</button>
+            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                <button class="btn" style="background:#555; flex:1" onclick="filterDE()">TYLKO DE</button>
+                <button class="btn" style="background:#888; flex:1" onclick="resetFilter()">WSZYSTKO</button>
             </div>
         </div>
 
         <div>
-            <label><strong>WIDOCZNOŚĆ / SICHTBARKEIT:</strong></label>
+            <label><strong>WIDOCZNOŚĆ PROJEKTÓW:</strong></label>
             <div id="filterCheckboxes" class="filter-container"></div>
         </div>
 
         <div style="text-align: right;">
-            <div style="margin-bottom: 8px;">
+            <div style="margin-bottom: 12px; display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
                 <label>KOLUMNY:</label>
-                <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:5px; width:50px;">
+                <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:10px; width:60px; border-radius:5px; border:1px solid #ccc;">
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 5px; flex-wrap: wrap;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <button class="btn btn-excel" onclick="exportToExcel()">EXCEL</button>
                 <button class="btn btn-pdf" onclick="generatePDF()">PDF A3</button>
-                <button class="btn btn-save" onclick="saveToLocalStorage(true)">ZAPISZ RĘCZNIE</button>
+                <button class="btn btn-save" onclick="saveToLocalStorage(true)">ZAPISZ</button>
                 <button class="btn" style="background: #607d8b" onclick="exportData()">BACKUP</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="printableArea">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 3px solid var(--primary); padding-bottom: 5px;">
-        <div>
-            <h1 style="margin:0; font-size: 26px;">ZESTAWIENIE TOOLBOX TALK 2026</h1>
-            <p style="margin:0; color: #444; font-size: 14px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen</p>
+<div class="table-responsive">
+    <div id="printableArea">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 3px solid var(--primary); padding-bottom: 5px;">
+            <div>
+                <h1 style="margin:0; font-size: 22px;">TOOLBOX TALK 2026</h1>
+                <p style="margin:0; color: #444; font-size: 12px; font-weight: bold;">Zestawienie zbiorcze</p>
+            </div>
+            <div id="monthLabel" style="text-align: right; font-size: 18px; font-weight: 900; color: var(--primary); line-height: 1.1;"></div>
         </div>
-        <div id="monthLabel" style="text-align: right; font-size: 22px; font-weight: 900; color: var(--primary); line-height: 1.2;"></div>
-    </div>
 
-    <table id="mainTable">
-        <thead id="tableHead"></thead>
-        <tbody id="tableBody"></tbody>
-        <tfoot id="tableFoot"></tfoot>
-    </table>
+        <table id="mainTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot id="tableFoot"></tfoot>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -157,9 +218,7 @@
     function toRoman(num) {
         const map = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
         let result = '';
-        for (let key in map) {
-            while (num >= map[key]) { result += key; num -= map[key]; }
-        }
+        for (let key in map) { while (num >= map[key]) { result += key; num -= map[key]; } }
         return result;
     }
 
@@ -174,7 +233,6 @@
         return total || 0;
     }
 
-    // GŁÓWNA BAZA DANYCH
     let db = JSON.parse(localStorage.getItem('toolbox_2026_master')) || { 
         projects: [...initialProjectsList],
         visibleProjects: [...initialProjectsList],
@@ -190,7 +248,7 @@
 
     function saveToLocalStorage(alertUser = false) {
         localStorage.setItem('toolbox_2026_master', JSON.stringify(db));
-        if(alertUser) alert("Zapisano pomyślnie! / Erfolgreich gespeichert!");
+        if(alertUser) alert("Zapisano!");
     }
 
     function sync() {
@@ -207,11 +265,9 @@
     }
 
     function updateValue(projectName, colIdx, val) {
-        if (!db.monthsData[curM].values[projectName]) {
-            db.monthsData[curM].values[projectName] = Array(15).fill('');
-        }
+        if (!db.monthsData[curM].values[projectName]) db.monthsData[curM].values[projectName] = Array(15).fill('');
         db.monthsData[curM].values[projectName][colIdx] = val;
-        saveToLocalStorage(); // Auto-zapis
+        saveToLocalStorage();
         refreshTotals();
     }
 
@@ -231,42 +287,47 @@
 
     function renderTable() {
         const mData = db.monthsData[curM];
-        document.getElementById('monthLabel').innerHTML = `${months[curM].pl.toUpperCase()} 2026<br><span style="font-size:14px; opacity:0.8;">${months[curM].de.toUpperCase()}</span>`;
+        document.getElementById('monthLabel').innerHTML = `${months[curM].pl.toUpperCase()} 2026<br><small>${months[curM].de.toUpperCase()}</small>`;
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
 
-        // NAGŁÓWEK
-        let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
+        let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT</th>`;
         for(let i=0; i < mData.count; i++) {
             hRow += `<th><input type="text" class="header-input" value="${mData.colTitles[i]}" onchange="triggerAutoFill(${i}, this.value)"></th>`;
         }
-        hRow += `<th class="col-sum">MIESIĄC<br>MONAT</th><th class="col-sum">ROCZNIE<br>JÄHRLICH</th></tr>`;
+        hRow += `<th class="col-sum">MIES.</th><th class="col-sum">ROCZ.</th></tr>`;
         head.innerHTML = hRow;
 
-        // BODY
         body.innerHTML = '';
         const activeProjects = db.projects.filter(p => db.visibleProjects.includes(p));
 
         activeProjects.forEach((name, idx) => {
             if (!mData.values[name]) mData.values[name] = Array(15).fill('');
             const rowVals = mData.values[name];
-            
             const tr = document.createElement('tr');
             tr.dataset.project = name;
-            const isDE = name.toUpperCase().includes('DE');
+            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('HAMBURG');
             
             let html = `<td class="col-lp">${idx + 1}</td>
-                        <td class="col-proj">${name} ${isDE ? '<span class="tag-de">DE</span>' : ''} <button class="btn-del" onclick="removeProject('${name}')">×</button></td>`;
+                        <td class="col-proj">
+                           <button class="btn-del" onclick="removeProject('${name}')">×</button>
+                           ${name} ${isDE ? '<span class="tag-de">DE</span>' : ''}
+                        </td>`;
             
             for(let i=0; i < mData.count; i++) {
-                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" oninput="updateValue('${name}', ${i}, this.value)"></td>`;
+                // Dodajemy wrapper i dymek podpowiedzi
+                html += `<td>
+                            <div class="cell-wrapper" style="position:relative;">
+                                <input type="number" class="cell-input" value="${rowVals[i]}" oninput="updateValue('${name}', ${i}, this.value)">
+                                <span class="input-tooltip">${name}</span>
+                            </div>
+                        </td>`;
             }
             html += `<td class="row-month-total col-sum">0</td><td class="row-ytd-total col-sum" style="color:var(--primary);">0</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
-        
         refreshTotals();
     }
 
@@ -274,37 +335,30 @@
         const mData = db.monthsData[curM];
         const rows = document.querySelectorAll('#tableBody tr');
         let colTotals = Array(mData.count).fill(0);
-        let grandMonth = 0;
-        let grandYTD = 0;
+        let grandMonth = 0; let grandYTD = 0;
 
         rows.forEach(row => {
             const name = row.dataset.project;
             const inputs = row.querySelectorAll('.cell-input');
             let mSum = 0;
-            
             inputs.forEach((input, i) => {
                 let val = parseFloat(input.value) || 0;
                 mSum += val;
                 colTotals[i] += val;
             });
 
-            // Oblicz ROCZNIE (YTD)
             let ytd = 0;
             for(let m=0; m<=11; m++) {
-                if(db.monthsData[m] && db.monthsData[m].values[name]) {
-                    const c = db.monthsData[m].count;
-                    ytd += db.monthsData[m].values[name].slice(0, c).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                if(db.monthsData[m]?.values[name]) {
+                    ytd += db.monthsData[m].values[name].slice(0, db.monthsData[m].count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
                 }
             }
-
             row.querySelector('.row-month-total').textContent = mSum;
             row.querySelector('.row-ytd-total').textContent = ytd;
-            grandMonth += mSum;
-            grandYTD += ytd;
+            grandMonth += mSum; grandYTD += ytd;
         });
 
-        // STOPKA
-        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
+        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:10px;">SUMA:</td>`;
         for(let i=0; i < mData.count; i++) fRow += `<td>${colTotals[i]}</td>`;
         fRow += `<td>${grandMonth}</td><td>${grandYTD}</td></tr>`;
         document.getElementById('tableFoot').innerHTML = fRow;
@@ -320,6 +374,8 @@
             b.onclick = () => { curM = i; renderMonthButtons(); sync(); };
             nav.appendChild(b);
         });
+        const activeBtn = nav.querySelector('.active');
+        if(activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
     }
 
     function renderFilterList() {
@@ -364,8 +420,7 @@
             db.projects = db.projects.filter(p => p !== name);
             db.visibleProjects = db.visibleProjects.filter(p => p !== name);
             saveToLocalStorage();
-            renderTable();
-            renderFilterList();
+            renderTable(); renderFilterList();
         }
     }
 
@@ -383,16 +438,15 @@
 
     function exportToExcel() {
         const mData = db.monthsData[curM];
-        let headers = ["LP", "Projekt / Bauvorhaben"];
+        let headers = ["LP", "Projekt"];
         for(let i=0; i < mData.count; i++) headers.push(mData.colTitles[i]);
         headers.push("Suma Miesiąc", "Suma Rocznie");
-
         let rows = [headers];
         db.projects.filter(p => db.visibleProjects.includes(p)).forEach((name, idx) => {
             let row = [idx + 1, name];
             let mSum = 0;
             for(let i=0; i < mData.count; i++) {
-                let v = parseFloat(mData.values[name][i]) || 0;
+                let v = parseFloat(mData.values[name]?.[i]) || 0;
                 row.push(v); mSum += v;
             }
             let ytd = 0;
@@ -402,7 +456,6 @@
             row.push(mSum, ytd);
             rows.push(row);
         });
-
         const ws = XLSX.utils.aoa_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Toolbox");
@@ -423,7 +476,7 @@
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
         const dl = document.createElement('a');
         dl.setAttribute("href", dataStr);
-        dl.setAttribute("download", "toolbox_2026_backup.json");
+        dl.setAttribute("download", "toolbox_backup_2026.json");
         dl.click();
     }
 
