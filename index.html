@@ -3,123 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 Ultra Pro</title>
+    <title>Toolbox Manager 2026 - A3 Multi-Filter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { 
-            --primary: #004085; 
-            --bg: #f0f2f5; 
-            --accent: #e67e22;
-            --danger: #c0392b;
+            --primary: #1a2a6c; 
+            --bg: #f4f7f6; 
+            --accent: #f39c12;
+            --danger: #e74c3c;
             --success: #27ae60;
         }
         
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; background: var(--bg); color: #222; }
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 10px; background: var(--bg); }
 
-        .no-print { 
-            background: #fff; padding: 20px; border-radius: 12px; 
-            margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        /* Panel sterowania */
+        .no-print-zone { 
+            background: #fff; padding: 15px; border-radius: 8px; 
+            margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .admin-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
-        
-        .section-label { font-size: 12px; font-weight: 900; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .admin-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; }
+        .input-group { display: flex; gap: 8px; margin-top: 5px; }
 
-        /* Filtry i Szukanie */
-        .search-box { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px; }
-        .filter-badge { padding: 5px 10px; background: #eee; border-radius: 20px; font-size: 11px; cursor: pointer; transition: 0.3s; border: 1px solid #ddd; }
-        .filter-badge.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* Styl filtra "ptaszków" */
+        .filter-container {
+            background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 5px;
+            max-height: 150px; overflow-y: auto; font-size: 12px;
+        }
+        .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; cursor: pointer; }
 
-        /* Tabela */
-        .table-scroll { width: 100%; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        #printableArea { width: 1600px; padding: 40px; background: white; }
-        
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { border: 1px solid #333; padding: 8px 5px; text-align: center; }
-        th { background: #f8f9fa; }
-        
-        .col-lp { width: 45px; }
-        .col-proj { width: 320px; text-align: left !important; font-weight: bold; position: relative; }
-        .col-data { width: 115px; }
-        .col-sum { width: 75px; font-weight: 900; background: #f1f1f1; }
+        /* Tabela i Arkusz A3 */
+        #printableArea { 
+            width: 1580px; /* Szerokość pod A3 w orientacji poziomej */
+            background: white; 
+            padding: 30px;
+            margin: 0 auto;
+        }
 
-        /* Formularze w tabeli */
-        .cell-input { width: 95%; height: 38px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold; font-size: 18px; }
-        .cell-input:focus { border-color: var(--accent); outline: none; background: #fffdf9; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
+        th, td { border: 1px solid #444; padding: 6px 4px; text-align: center; overflow: hidden; }
+        th { background: #eee; font-size: 13px; text-transform: uppercase; }
         
-        .btn { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; }
-        .btn-save { background: #2c3e50; }
+        .col-lp { width: 40px; }
+        .col-proj { width: 350px; text-align: left !important; padding-left: 10px; font-weight: bold; }
+        .col-sum { width: 70px; background: #f9f9f9; font-weight: bold; }
+
+        .cell-input { width: 90%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 16px; font-weight: bold; }
+        .cell-input:focus { background: #fff9e6; border-color: var(--accent); }
+
+        .tag-de { 
+            display: inline-block; background: #000; color: #ffce00; 
+            padding: 2px 5px; font-size: 10px; font-weight: bold; border-radius: 3px; margin-left: 5px;
+        }
+
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-save { background: var(--primary); }
         .btn-pdf { background: var(--accent); }
         .btn-add { background: var(--success); }
-        .btn-del { background: none; color: var(--danger); font-size: 18px; float: right; padding: 0 5px; }
-        
-        .months-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 10px; }
-        .m-btn { background: #eee; border: none; padding: 8px; font-size: 11px; border-radius: 4px; cursor: pointer; }
-        .m-btn.active { background: var(--primary); color: white; }
+        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; }
+        .btn:hover { opacity: 0.8; }
 
-        .tag-de { color: #d35400; font-size: 10px; font-weight: 900; border: 1px solid #d35400; padding: 1px 3px; border-radius: 3px; margin-left: 5px; }
+        .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; }
+        .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        @media print {
+            .no-print-zone, .btn-del { display: none !important; }
+            body { background: white; padding: 0; }
+            #printableArea { width: 100%; border: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="no-print">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span class="section-label">Wybierz Miesiąc 2026</span>
-        <button class="btn btn-pdf" style="padding: 5px 15px;" onclick="generatePDF()">📄 Eksportuj A3 PDF</button>
-    </div>
+<div class="no-print-zone">
+    <div class="months-nav" id="monthNav"></div>
     
-    <div class="months-grid" id="monthNav"></div>
-
-    <div class="admin-panel">
+    <div class="admin-grid">
         <div>
-            <span class="section-label">Zarządzanie projektami</span>
-            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                <input type="text" id="newProjName" class="search-box" placeholder="Nazwa nowego projektu..." style="margin:0">
+            <label style="font-weight: bold; font-size: 12px;">DODAJ LUB SZUKAJ:</label>
+            <div class="input-group">
+                <input type="text" id="newProjName" placeholder="Nazwa nowego projektu..." style="flex-grow:1; padding: 8px;">
                 <button class="btn btn-add" onclick="addNewProject()">DODAJ</button>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="searchProj" class="search-box" placeholder="Szukaj projektu..." oninput="renderTable()" style="margin:0">
-                <div id="filterDE" class="filter-badge" onclick="toggleFilterDE()">Pokaż tylko DE</div>
-                <button onclick="tagAllDE()" style="font-size: 10px; cursor:pointer">Oznacz wszystkie DE</button>
+            <div class="input-group" style="margin-top: 10px;">
+                <input type="text" id="searchProj" placeholder="Filtruj listę tekstem..." oninput="renderTable()" style="flex-grow:1; padding: 8px;">
             </div>
         </div>
-        
+
         <div>
-            <span class="section-label">Ustawienia arkusza</span>
-            <div style="display: flex; gap: 20px;">
-                <div>
-                    <small>Liczba spotkań:</small><br>
-                    <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:8px; width:60px; border-radius:5px;">
+            <label style="font-weight: bold; font-size: 12px;">WIDOCZNOŚĆ PROJEKTÓW:</label>
+            <div id="filterCheckboxes" class="filter-container">
                 </div>
-                <button class="btn btn-save" style="flex-grow: 1;" onclick="saveData()">💾 ZAPISZ WSZYSTKIE DANE</button>
-            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <label style="font-weight: bold; font-size: 12px;">SPOTKAŃ W MIESIĄCU:</label><br>
+            <input type="number" id="colCount" value="5" min="1" max="12" onchange="updateColCount()" style="padding:8px; width:60px; margin-bottom: 10px;">
+            <br>
+            <button class="btn btn-save" onclick="saveData()">ZAPISZ BAZĘ</button>
+            <button class="btn btn-pdf" onclick="generatePDF()">POBIERZ A3 PDF</button>
         </div>
     </div>
 </div>
 
-<div class="table-scroll">
-    <div id="printableArea">
-        <header style="text-align:center; border-bottom: 5px solid var(--primary); margin-bottom:20px; padding-bottom:15px;">
-            <div style="font-size: 32px; font-weight: 900; letter-spacing: 1px;">ZESTAWIENIE PRZEPROWADZONYCH TOOLBOX TALK</div>
-            <div style="font-size: 20px; color: #666; font-style: italic;">Zusammenfassung der durchgeführten Toolbox-Talks</div>
-            <div id="monthLabel" style="font-size: 26px; font-weight: bold; color: var(--primary); margin-top:15px; background: #f8f9fa; display: inline-block; padding: 5px 20px; border-radius: 30px;"></div>
-        </header>
-
-        <table id="mainTable">
-            <thead id="tableHead"></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-        
-        <footer style="margin-top: 30px; font-size: 14px; color: #444; display: flex; justify-content: space-between; font-weight: bold;">
-            <span>SYSTEM: Toolbox Manager 2026 Pro v2.0</span>
-            <div style="text-align: right;">
-                <span>Data raportu: <span id="currentDate"></span></span><br><br>
-                <span>Podpis Kierownika: ...........................................................................</span>
-            </div>
-        </footer>
+<div id="printableArea">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 3px solid var(--primary); padding-bottom: 10px;">
+        <div>
+            <h1 style="margin:0; font-size: 28px;">ZESTAWIENIE TOOLBOX TALK</h1>
+            <p style="margin:0; color: #555; font-style: italic;">Übersicht der Sicherheitsunterweisungen</p>
+        </div>
+        <div id="monthLabel" style="font-size: 22px; font-weight: bold; color: var(--primary);"></div>
     </div>
+
+    <table id="mainTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 </div>
 
 <script>
@@ -130,24 +132,17 @@
         {pl: "Październik", de: "Oktober"}, {pl: "Listopad", de: "November"}, {pl: "Grudzień", de: "Dezember"}
     ];
 
-    // Stan aplikacji
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_ultra')) || { 
-        projects: ["BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV", "Stade DE", "Avacon DE"],
+    // Baza danych z obsługą widoczności (visibleProjects)
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_a3')) || { 
+        projects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
+        visibleProjects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
         monthsData: {} 
     };
     
     let curM = new Date().getMonth();
-    let filterDEOnly = false;
-
-    function toRoman(num) {
-        const map = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
-        let roman = '';
-        for (let i in map) { while (num >= map[i]) { roman += i; num -= map[i]; } }
-        return roman;
-    }
 
     function init() {
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+        if (!db.visibleProjects) db.visibleProjects = [...db.projects];
         renderMonthButtons();
         sync();
     }
@@ -166,9 +161,35 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colDates: Array(20).fill(''), values: {} };
+            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), values: {} };
         }
         document.getElementById('colCount').value = db.monthsData[curM].count;
+        renderFilterList();
+        renderTable();
+    }
+
+    function renderFilterList() {
+        const container = document.getElementById('filterCheckboxes');
+        container.innerHTML = '';
+        
+        db.projects.forEach(proj => {
+            const isChecked = db.visibleProjects.includes(proj);
+            const label = document.createElement('label');
+            label.className = 'filter-item';
+            label.innerHTML = `
+                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVisibility('${proj}')">
+                ${proj}
+            `;
+            container.appendChild(label);
+        });
+    }
+
+    function toggleVisibility(proj) {
+        if (db.visibleProjects.includes(proj)) {
+            db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
+        } else {
+            db.visibleProjects.push(proj);
+        }
         renderTable();
     }
 
@@ -176,28 +197,21 @@
         const name = document.getElementById('newProjName').value.trim();
         if (name && !db.projects.includes(name)) {
             db.projects.push(name);
+            db.visibleProjects.push(name); // Nowy projekt domyślnie widoczny
             db.projects.sort();
             document.getElementById('newProjName').value = '';
+            renderFilterList();
             renderTable();
         }
     }
 
     function removeProject(name) {
-        if (confirm(`Czy na pewno usunąć projekt: ${name}? Dane wewnątrz tabeli zostaną zachowane w bazie, ale ukryte.`)) {
+        if (confirm(`Usunąć projekt ${name} na stałe z bazy?`)) {
             db.projects = db.projects.filter(p => p !== name);
+            db.visibleProjects = db.visibleProjects.filter(p => p !== name);
+            renderFilterList();
             renderTable();
         }
-    }
-
-    function toggleFilterDE() {
-        filterDEOnly = !filterDEOnly;
-        document.getElementById('filterDE').classList.toggle('active');
-        renderTable();
-    }
-
-    function tagAllDE() {
-        db.projects = db.projects.map(p => (p.toLowerCase().includes('de') || p.toLowerCase().includes('niemcy')) ? (p.toUpperCase().endsWith(' DE') ? p : p + ' DE') : p);
-        renderTable();
     }
 
     function updateColCount() {
@@ -207,50 +221,56 @@
 
     function renderTable() {
         const mData = db.monthsData[curM];
-        const searchTerm = document.getElementById('searchProj').value.toLowerCase();
-        document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} / ${months[curM].de.toUpperCase()} 2026`;
+        const searchText = document.getElementById('searchProj').value.toLowerCase();
+        document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} 2026`;
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
 
         // Nagłówek
-        let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">Projekt / Bauvorhaben</th>`;
+        let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
             let dateVal = mData.colDates[i] || '';
-            hRow += `<th class="col-data">
-                <span style="color:var(--primary); font-weight:900;">${toRoman(i+1)}</span><br>
-                <input type="date" class="cell-input" style="font-size:11px; height:25px;" value="${dateVal}" 
-                oninput="db.monthsData[${curM}].colDates[${i}]=this.value">
-            </th>`;
+            hRow += `<th>Spotkanie ${i+1}<br><input type="date" class="cell-input" style="font-size:10px;" value="${dateVal}" oninput="db.monthsData[${curM}].colDates[${i}]=this.value"></th>`;
         }
-        hRow += `<th class="col-sum">SUMA</th><th class="col-sum">NARAST.</th></tr>`;
+        hRow += `<th class="col-sum">M-C</th><th class="col-sum">YTD</th></tr>`;
         head.innerHTML = hRow;
 
-        // Filtrowanie listy projektów
-        let visibleProjects = db.projects.filter(p => {
-            const matchesSearch = p.toLowerCase().includes(searchTerm);
-            const matchesDE = filterDEOnly ? (p.toUpperCase().includes('DE')) : true;
-            return matchesSearch && matchesDE;
-        });
-
         body.innerHTML = '';
-        visibleProjects.forEach((name, idx) => {
-            if (!mData.values[name]) mData.values[name] = Array(20).fill('');
-            const rowVals = mData.values[name];
-            let mSum = rowVals.slice(0, mData.count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            let ytd = calculateYTD(name, curM, mSum);
+        
+        // Filtrowanie: tylko te, które są zaznaczone w checkboxach ORAZ pasują do wyszukiwarki
+        const filteredProjects = db.projects.filter(p => 
+            db.visibleProjects.includes(p) && 
+            p.toLowerCase().includes(searchText)
+        );
 
-            const isDE = name.toUpperCase().includes('DE');
+        filteredProjects.forEach((name, idx) => {
+            if (!mData.values[name]) mData.values[name] = Array(15).fill('');
+            const rowVals = mData.values[name];
+            
+            // Suma miesiąca
+            let mSum = rowVals.slice(0, mData.count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            
+            // Suma YTD (od początku roku do wybranego miesiąca)
+            let ytd = 0;
+            for(let i=0; i <= curM; i++) {
+                if(db.monthsData[i] && db.monthsData[i].values[name]) {
+                    const countForThatMonth = db.monthsData[i].count || 5;
+                    ytd += db.monthsData[i].values[name].slice(0, countForThatMonth).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                }
+            }
+
+            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY');
 
             const tr = document.createElement('tr');
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
                             ${name} ${isDE ? '<span class="tag-de">DE</span>' : ''}
-                            <button class="no-print btn-del" onclick="removeProject('${name}')">×</button>
+                            <button class="btn-del" onclick="removeProject('${name}')" style="float:right">×</button>
                         </td>`;
             
             for(let i=0; i < mData.count; i++) {
-                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" oninput="updateVal('${name}', ${i}, this.value)"></td>`;
+                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" oninput="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
             html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary)">${ytd}</td>`;
             tr.innerHTML = html;
@@ -258,56 +278,33 @@
         });
     }
 
-    function updateVal(proj, cIdx, val) {
-        db.monthsData[curM].values[proj][cIdx] = val;
-        renderTotalsOnly();
-    }
-
-    function renderTotalsOnly() {
-        const rows = document.querySelectorAll('#tableBody tr');
-        const searchTerm = document.getElementById('searchProj').value.toLowerCase();
-        let visibleProjects = db.projects.filter(p => {
-            const matchesSearch = p.toLowerCase().includes(searchTerm);
-            const matchesDE = filterDEOnly ? (p.toUpperCase().includes('DE')) : true;
-            return matchesSearch && matchesDE;
-        });
-
-        visibleProjects.forEach((name, idx) => {
-            const rowVals = db.monthsData[curM].values[name];
-            let mSum = rowVals.slice(0, db.monthsData[curM].count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            let ytd = calculateYTD(name, curM, mSum);
-            const cells = rows[idx].querySelectorAll('.col-sum');
-            cells[0].textContent = mSum;
-            cells[1].textContent = ytd;
-        });
-    }
-
-    function calculateYTD(proj, mIdx, curSum) {
-        let total = 0;
-        for(let i=0; i < mIdx; i++) {
-            if(db.monthsData[i] && db.monthsData[i].values[proj]) {
-                total += db.monthsData[i].values[proj].slice(0, (db.monthsData[i].count || 5)).reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            }
-        }
-        return total + curSum;
-    }
-
     function saveData() {
-        localStorage.setItem('toolbox_2026_ultra', JSON.stringify(db));
-        alert("Wszystkie dane i lista projektów zostały zapisane!");
+        localStorage.setItem('toolbox_2026_a3', JSON.stringify(db));
+        alert("Dane i ustawienia filtrów zostały zapisane!");
     }
 
     function generatePDF() {
         const area = document.getElementById('printableArea');
-        // Ukrywamy przyciski usuwania na czas generowania PDF
-        document.querySelectorAll('.btn-del').forEach(b => b.style.display = 'none');
+        const delButtons = document.querySelectorAll('.btn-del');
         
-        html2canvas(area, { scale: 2 }).then(canvas => {
-            const pdf = new jspdf.jsPDF('l', 'mm', 'a3');
+        // Ukryj przyciski usuwania i krawędzie inputów do PDF
+        delButtons.forEach(b => b.style.display = 'none');
+
+        html2canvas(area, { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: 1580
+        }).then(canvas => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'mm', 'a3');
             const imgData = canvas.toDataURL('image/png');
+            
+            // Marginesy 5mm, szerokość dopasowana do A3 (420mm)
             pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
-            pdf.save(`Toolbox_Report_2026_${months[curM].pl}.pdf`);
-            document.querySelectorAll('.btn-del').forEach(b => b.style.display = 'block');
+            pdf.save(`Toolbox_Talk_2026_${months[curM].pl}.pdf`);
+            
+            delButtons.forEach(b => b.style.display = 'block');
         });
     }
 
