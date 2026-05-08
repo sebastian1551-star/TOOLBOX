@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - A3 Compact</title>
+    <title>Toolbox Manager 2026 - A3 Compact (PL/DE)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -40,12 +40,12 @@
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; overflow: hidden; height: 32px; }
-        th { background: #f0f0f0; font-size: 12px; font-weight: bold; }
+        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; overflow: hidden; height: 35px; }
+        th { background: #f0f0f0; font-size: 11px; font-weight: bold; }
         
         .col-lp { width: 35px; }
         .col-proj { width: 380px; text-align: left !important; padding-left: 8px; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .col-sum { width: 85px; background: #f9f9f9; font-weight: bold; }
+        .col-sum { width: 95px; background: #f9f9f9; font-weight: bold; }
 
         .cell-input { width: 95%; padding: 4px; border: 1px solid #ddd; text-align: center; font-size: 16px; font-weight: bold; }
         .header-input { 
@@ -71,6 +71,7 @@
         .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .footer-row { background: #eee; font-weight: bold; font-size: 16px; }
+        .lang-sub { display: block; font-size: 9px; color: #666; font-weight: normal; margin-top: 2px; }
 
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
@@ -96,14 +97,14 @@
             <button class="btn btn-de" style="background:#888" onclick="resetFilter()">WSZYSTKO</button>
         </div>
         <div>
-            <label>WIDOCZNOŚĆ:</label>
+            <label>WIDOCZNOŚĆ PROJEKTÓW:</label>
             <div id="filterCheckboxes" class="filter-container"></div>
         </div>
         <div style="text-align: right;">
-            <label>KOLUMNY:</label>
+            <label>LICZBA KOLUMN:</label>
             <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:5px; width:50px;">
-            <button class="btn btn-save" onclick="saveData()">ZAPISZ</button>
-            <button class="btn btn-pdf" onclick="generatePDF()">PDF A3</button>
+            <button class="btn btn-save" onclick="saveData()">ZAPISZ DANE</button>
+            <button class="btn btn-pdf" onclick="generatePDF()">POBIERZ PDF A3</button>
         </div>
     </div>
 </div>
@@ -112,9 +113,9 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 3px solid var(--primary); padding-bottom: 5px;">
         <div>
             <h1 style="margin:0; font-size: 24px;">ZESTAWIENIE TOOLBOX TALK 2026</h1>
-            <p style="margin:0; color: #444; font-size: 12px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen</p>
+            <p style="margin:0; color: #444; font-size: 12px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen / Toolbox Talk Summary</p>
         </div>
-        <div id="monthLabel" style="font-size: 22px; font-weight: 900; color: var(--primary);"></div>
+        <div id="monthLabel" style="text-align: right; font-size: 20px; font-weight: 900; color: var(--primary); line-height: 1.2;"></div>
     </div>
 
     <table id="mainTable">
@@ -162,7 +163,7 @@
         "Ketten weschel Karbrn DE"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_compact_v4')) || { 
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_compact_v5')) || { 
         projects: initialProjects.sort(),
         visibleProjects: [...initialProjects],
         monthsData: {} 
@@ -213,20 +214,30 @@
     function renderTable() {
         const mData = db.monthsData[curM];
         const searchText = document.getElementById('searchProj').value.toLowerCase();
-        document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} 2026`;
+        
+        // Dwujęzyczny nagłówek miesiąca
+        document.getElementById('monthLabel').innerHTML = `${months[curM].pl.toUpperCase()} 2026<br><span style="font-size:14px; opacity:0.8;">${months[curM].de.toUpperCase()}</span>`;
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
         const foot = document.getElementById('tableFoot');
 
-        let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
+        // Nagłówki Kolumn
+        let hRow = `<tr>
+            <th class="col-lp">LP<span class="lang-sub">Nr.</span></th>
+            <th class="col-proj">PROJEKT / BAUVORHABEN<span class="lang-sub">Projektname / Standort</span></th>`;
+        
         for(let i=0; i < mData.count; i++) {
             hRow += `<th>
                 <input type="text" class="header-input" value="${mData.colTitles[i]}" 
                        onchange="triggerAutoFill(${i}, this.value)">
+                <span class="lang-sub">TBT Nr.</span>
             </th>`;
         }
-        hRow += `<th class="col-sum">MONAT</th><th class="col-sum">JÄHRLICH</th></tr>`;
+        hRow += `
+            <th class="col-sum">MIESIĄC<span class="lang-sub">MONAT</span></th>
+            <th class="col-sum">ROCZNIE<span class="lang-sub">JÄHRLICH (YTD)</span></th>
+        </tr>`;
         head.innerHTML = hRow;
 
         body.innerHTML = '';
@@ -268,7 +279,9 @@
             body.appendChild(tr);
         });
 
-        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:10px;">SUMA:</td>`;
+        // Stopka z sumami
+        let fRow = `<tr class="footer-row">
+            <td colspan="2" style="text-align:right; padding-right:10px;">SUMA / GESAMT:</td>`;
         for(let i=0; i < mData.count; i++) fRow += `<td>${colTotals[i]}</td>`;
         fRow += `<td>${grandMonthTotal}</td><td style="color:var(--primary);">${grandYTDTotal}</td></tr>`;
         foot.innerHTML = fRow;
@@ -309,7 +322,7 @@
     }
 
     function removeProject(name) {
-        if (confirm(`Usunąć ${name}?`)) {
+        if (confirm(`Usunąć projekt ${name}?`)) {
             db.projects = db.projects.filter(p => p !== name);
             db.visibleProjects = db.visibleProjects.filter(p => p !== name);
             renderTable();
@@ -327,8 +340,8 @@
     }
 
     function saveData() {
-        localStorage.setItem('toolbox_2026_compact_v4', JSON.stringify(db));
-        alert("Zapisano pomyślnie!");
+        localStorage.setItem('toolbox_2026_compact_v5', JSON.stringify(db));
+        alert("Dane zostały zapisane w przeglądarce!");
     }
 
     function generatePDF() {
@@ -339,8 +352,9 @@
         html2canvas(area, { scale: 2, width: 1550 }).then(canvas => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a3');
+            // A3 ma ok 420mm szerokości. Skalujemy canvas 1550px na szerokość strony.
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 10, 410, 0); 
-            pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
+            pdf.save(`Zestawienie_Toolbox_2026_${months[curM].pl}.pdf`);
             delBtns.forEach(b => b.style.display = 'block');
         });
     }
