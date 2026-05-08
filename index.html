@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - A3 Multi-Filter</title>
+    <title>Toolbox Manager 2026 - A3 Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -40,15 +40,20 @@
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #444; padding: 6px 4px; text-align: center; overflow: hidden; }
-        th { background: #eee; font-size: 13px; text-transform: uppercase; }
+        th, td { border: 1px solid #444; padding: 8px 4px; text-align: center; overflow: hidden; }
+        th { background: #eee; font-size: 14px; text-transform: uppercase; }
         
         .col-lp { width: 45px; }
-        .col-proj { width: 350px; text-align: left !important; padding-left: 10px; font-weight: bold; }
-        .col-sum { width: 85px; background: #f2f2f2; font-weight: bold; }
+        .col-proj { width: 380px; text-align: left !important; padding-left: 10px; font-weight: bold; font-size: 15px; }
+        .col-sum { width: 90px; background: #f2f2f2; font-weight: bold; }
 
-        .cell-input { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 16px; font-weight: bold; }
-        .cell-input:focus { background: #fff9e6; border-color: var(--accent); }
+        .cell-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-size: 18px; font-weight: bold; }
+        .header-input { 
+            width: 90%; border: 1px solid transparent; background: transparent; 
+            text-align: center; font-size: 22px; font-weight: 900; color: var(--primary); 
+            cursor: pointer;
+        }
+        .header-input:hover { background: #e0e0e0; border-color: #999; }
 
         .tag-de { 
             display: inline-block; background: #000; color: #ffce00; 
@@ -60,14 +65,16 @@
         .btn-pdf { background: var(--accent); }
         .btn-add { background: var(--success); }
         .btn-de { background: #444; margin-top: 5px; font-size: 10px; padding: 5px; }
-        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; }
+        .btn-del { background: none; color: var(--danger); font-size: 22px; border: none; cursor: pointer; line-height: 1; }
         .btn:hover { opacity: 0.8; }
 
         .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; }
         .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
         .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .footer-row { background: #eee; font-weight: bold; font-size: 14px; }
+        .footer-row { background: #eee; font-weight: bold; font-size: 16px; }
+
+        .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; font-weight: normal; }
 
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
@@ -101,8 +108,8 @@
         </div>
 
         <div style="text-align: right;">
-            <label style="font-weight: bold; font-size: 12px;">SPOTKAŃ W MIESIĄCU:</label><br>
-            <input type="number" id="colCount" value="5" min="1" max="12" onchange="updateColCount()" style="padding:8px; width:60px; margin-bottom: 10px;">
+            <label style="font-weight: bold; font-size: 12px;">LICZBA KOLUMN (SPOTKAŃ):</label><br>
+            <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:8px; width:60px; margin-bottom: 10px;">
             <br>
             <button class="btn btn-save" onclick="saveData()">ZAPISZ BAZĘ</button>
             <button class="btn btn-pdf" onclick="generatePDF()">POBIERZ A3 PDF</button>
@@ -111,12 +118,12 @@
 </div>
 
 <div id="printableArea">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 3px solid var(--primary); padding-bottom: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 4px solid var(--primary); padding-bottom: 10px;">
         <div>
-            <h1 style="margin:0; font-size: 28px;">ZESTAWIENIE TOOLBOX TALK</h1>
-            <p style="margin:0; color: #555; font-style: italic;">Übersicht der Sicherheitsunterweisungen</p>
+            <h1 style="margin:0; font-size: 32px; letter-spacing: 1px;">ZESTAWIENIE TOOLBOX TALK</h1>
+            <p style="margin:0; color: #444; font-size: 14px; font-weight: bold; text-transform: uppercase;">Übersicht der Sicherheitsunterweisungen</p>
         </div>
-        <div id="monthLabel" style="font-size: 22px; font-weight: bold; color: var(--primary);"></div>
+        <div id="monthLabel" style="font-size: 26px; font-weight: 900; color: var(--primary);"></div>
     </div>
 
     <table id="mainTable">
@@ -137,16 +144,16 @@
     function toRoman(num) {
         const map = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
         let result = '';
+        let n = num;
         for (let key in map) {
-            while (num >= map[key]) {
+            while (n >= map[key]) {
                 result += key;
-                num -= map[key];
+                n -= map[key];
             }
         }
         return result;
     }
 
-    // LISTA PROJEKTÓW Z TWOJEGO OBRAZKA
     const initialProjects = [
         "BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV",
         "Radzyń - Łuków LE 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino",
@@ -156,7 +163,7 @@
         "Ketten weschel Karbrn DE"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_a3')) || { 
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_a3_final')) || { 
         projects: initialProjects.sort(),
         visibleProjects: [...initialProjects],
         monthsData: {} 
@@ -165,7 +172,6 @@
     let curM = new Date().getMonth();
 
     function init() {
-        if (!db.visibleProjects) db.visibleProjects = [...db.projects];
         renderMonthButtons();
         sync();
     }
@@ -184,73 +190,23 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), colTitles: [], values: {} };
+            db.monthsData[curM] = { count: 5, colTitles: [], values: {} };
         }
         const mData = db.monthsData[curM];
         if (!mData.colTitles || mData.colTitles.length === 0) {
             mData.colTitles = Array.from({length: 15}, (_, i) => toRoman(i + 1));
         }
-        
         document.getElementById('colCount').value = mData.count;
         renderFilterList();
         renderTable();
     }
 
-    function renderFilterList() {
-        const container = document.getElementById('filterCheckboxes');
-        container.innerHTML = '';
-        db.projects.forEach(proj => {
-            const isChecked = db.visibleProjects.includes(proj);
-            const label = document.createElement('label');
-            label.className = 'filter-item';
-            label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVisibility('${proj}')"> ${proj}`;
-            container.appendChild(label);
-        });
-    }
-
-    function filterDE() {
-        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY'));
-        renderFilterList();
-        renderTable();
-    }
-
-    function resetFilter() {
-        db.visibleProjects = [...db.projects];
-        renderFilterList();
-        renderTable();
-    }
-
-    function toggleVisibility(proj) {
-        if (db.visibleProjects.includes(proj)) {
-            db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
-        } else {
-            db.visibleProjects.push(proj);
+    // AUTO-UZUPEŁNIANIE RZYMSKICH
+    function autoFillRoman(startIndex) {
+        const mData = db.monthsData[curM];
+        for (let i = startIndex + 1; i < 15; i++) {
+            mData.colTitles[i] = toRoman(i + 1);
         }
-        renderTable();
-    }
-
-    function addNewProject() {
-        const name = document.getElementById('newProjName').value.trim();
-        if (name && !db.projects.includes(name)) {
-            db.projects.push(name);
-            db.visibleProjects.push(name);
-            db.projects.sort();
-            document.getElementById('newProjName').value = '';
-            renderFilterList();
-            renderTable();
-        }
-    }
-
-    function removeProject(name) {
-        if (confirm(`Usunąć projekt ${name} na stałe z bazy?`)) {
-            db.projects = db.projects.filter(p => p !== name);
-            db.visibleProjects = db.visibleProjects.filter(p => p !== name);
-            renderTable();
-        }
-    }
-
-    function updateColCount() {
-        db.monthsData[curM].count = parseInt(document.getElementById('colCount').value) || 1;
         renderTable();
     }
 
@@ -266,11 +222,13 @@
         // Nagłówek
         let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
-            let dateVal = mData.colDates[i] || '';
             let titleVal = mData.colTitles[i] || toRoman(i+1);
             hRow += `<th>
-                <input type="text" class="cell-input" style="font-size:11px; margin-bottom:2px;" value="${titleVal}" onchange="db.monthsData[${curM}].colTitles[${i}]=this.value">
-                <input type="date" class="cell-input" style="font-size:10px;" value="${dateVal}" oninput="db.monthsData[${curM}].colDates[${i}]=this.value">
+                <input type="text" class="header-input" value="${titleVal}" 
+                       onchange="db.monthsData[${curM}].colTitles[${i}]=this.value"
+                       onclick="autoFillRoman(${i})"
+                       title="Kliknij, aby uzupełnić resztę automatycznie">
+                <span class="hint">KLIKNIJ AUTO</span>
             </th>`;
         }
         hRow += `<th class="col-sum">MIESIĄC<br><small>MONAT</small></th><th class="col-sum">ROCZNIE<br><small>JÄHRLICH</small></th></tr>`;
@@ -289,10 +247,10 @@
             
             let mSum = rowVals.slice(0, mData.count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
             let ytd = 0;
-            for(let i=0; i <= curM; i++) {
-                if(db.monthsData[i] && db.monthsData[i].values[name]) {
-                    const countForMonth = db.monthsData[i].count || 5;
-                    ytd += db.monthsData[i].values[name].slice(0, countForMonth).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            for(let m=0; m <= curM; m++) {
+                if(db.monthsData[m] && db.monthsData[m].values[name]) {
+                    const cCount = db.monthsData[m].count || 5;
+                    ytd += db.monthsData[m].values[name].slice(0, cCount).reduce((a, b) => a + (parseFloat(b) || 0), 0);
                 }
             }
 
@@ -300,7 +258,7 @@
             grandYTDTotal += ytd;
             for(let i=0; i<mData.count; i++) colTotals[i] += (parseFloat(rowVals[i]) || 0);
 
-            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY') || name.toLowerCase().includes('hamburg') || name.toLowerCase().includes('semlin');
+            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY');
             const tr = document.createElement('tr');
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
@@ -311,30 +269,88 @@
             for(let i=0; i < mData.count; i++) {
                 html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
-            html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary)">${ytd}</td>`;
+            html += `<td class="col-sum" style="font-size:18px;">${mSum}</td><td class="col-sum" style="color:var(--primary); font-size:18px;">${ytd}</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
 
-        // Stopka z sumowaniem
         let fRow = `<tr class="footer-row">
             <td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
         for(let i=0; i < mData.count; i++) {
-            fRow += `<td>${colTotals[i]}</td>`;
+            fRow += `<td style="font-size:20px;">${colTotals[i]}</td>`;
         }
-        fRow += `<td>${grandMonthTotal}</td><td style="color:var(--primary)">${grandYTDTotal}</td></tr>`;
+        fRow += `<td style="font-size:20px;">${grandMonthTotal}</td><td style="color:var(--primary); font-size:20px;">${grandYTDTotal}</td></tr>`;
         foot.innerHTML = fRow;
     }
 
+    function renderFilterList() {
+        const container = document.getElementById('filterCheckboxes');
+        container.innerHTML = '';
+        db.projects.forEach(proj => {
+            const isChecked = db.visibleProjects.includes(proj);
+            const label = document.createElement('label');
+            label.className = 'filter-item';
+            label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleVisibility('${proj}')"> ${proj}`;
+            container.appendChild(label);
+        });
+    }
+
+    function toggleVisibility(proj) {
+        if (db.visibleProjects.includes(proj)) {
+            db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
+        } else {
+            db.visibleProjects.push(proj);
+        }
+        renderTable();
+    }
+
+    function updateColCount() {
+        db.monthsData[curM].count = parseInt(document.getElementById('colCount').value) || 1;
+        renderTable();
+    }
+
+    function addNewProject() {
+        const name = document.getElementById('newProjName').value.trim();
+        if (name && !db.projects.includes(name)) {
+            db.projects.push(name);
+            db.visibleProjects.push(name);
+            db.projects.sort();
+            document.getElementById('newProjName').value = '';
+            renderFilterList();
+            renderTable();
+        }
+    }
+
+    function removeProject(name) {
+        if (confirm(`Usunąć projekt ${name} na stałe?`)) {
+            db.projects = db.projects.filter(p => p !== name);
+            db.visibleProjects = db.visibleProjects.filter(p => p !== name);
+            renderTable();
+        }
+    }
+
+    function filterDE() {
+        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY'));
+        renderFilterList(); renderTable();
+    }
+
+    function resetFilter() {
+        db.visibleProjects = [...db.projects];
+        renderFilterList(); renderTable();
+    }
+
     function saveData() {
-        localStorage.setItem('toolbox_2026_a3', JSON.stringify(db));
-        alert("Baza danych została zaktualizowana!");
+        localStorage.setItem('toolbox_2026_a3_final', JSON.stringify(db));
+        alert("Zapisano pomyślnie!");
     }
 
     function generatePDF() {
         const area = document.getElementById('printableArea');
-        const delButtons = document.querySelectorAll('.btn-del');
-        delButtons.forEach(b => b.style.display = 'none');
+        const delBtns = document.querySelectorAll('.btn-del');
+        const hints = document.querySelectorAll('.hint');
+        
+        delBtns.forEach(b => b.style.display = 'none');
+        hints.forEach(h => h.style.display = 'none');
 
         html2canvas(area, { scale: 2, useCORS: true, width: 1580 }).then(canvas => {
             const { jsPDF } = window.jspdf;
@@ -342,7 +358,9 @@
             const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
             pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
-            delButtons.forEach(b => b.style.display = 'block');
+            
+            delBtns.forEach(b => b.style.display = 'block');
+            hints.forEach(h => h.style.display = 'block');
         });
     }
 
