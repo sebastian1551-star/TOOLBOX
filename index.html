@@ -10,7 +10,6 @@
         :root { 
             --primary: #004085; 
             --bg: #f0f2f5; 
-            --border: #333;
             --danger: #d93025;
             --accent: #e67e22;
             --success: #28a745;
@@ -22,7 +21,6 @@
             margin: 0; padding: 10px; background: var(--bg); color: #222; 
         }
 
-        /* Sekcja ustawień - Mobilna */
         .no-print { 
             background: #fff; padding: 15px; border-radius: 12px; 
             margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -30,92 +28,92 @@
 
         .section-label { font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; display: block; }
 
+        /* Zarządzanie widocznością miesięcy */
         .months-grid { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 15px; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; 
         }
         .m-btn { 
             background: #f8f9fa; border: 1px solid #ddd; padding: 12px 2px; 
             cursor: pointer; text-align: center; font-size: 11px; font-weight: bold; border-radius: 8px;
         }
         .m-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        
+        .months-grid.single-mode .m-btn:not(.active) { display: none; }
+        .months-grid.single-mode { grid-template-columns: 1fr; }
 
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .input-box { display: flex; flex-direction: column; }
-        input[type="text"], input[type="number"] { 
+        .change-month-btn {
+            background: #6c757d; color: white; border: none; padding: 10px; 
+            border-radius: 6px; font-size: 11px; font-weight: bold; width: 100%; margin-top: 5px;
+            display: none; cursor: pointer;
+        }
+        .single-mode + .change-month-btn { display: block; }
+
+        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+        input[type="number"] { 
             padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; width: 100%;
         }
 
-        /* Zarządzanie projektami */
-        .filter-box { 
-            border: 1px solid #ddd; border-radius: 8px; padding: 10px; 
-            max-height: 150px; overflow-y: auto; background: #fafafa; margin-bottom: 10px;
-        }
-        .filter-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
-
-        /* Tabela z przewijaniem i blokadą kolumny */
         .table-scroll { 
             width: 100%; overflow-x: auto; background: #fff; border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        #printableArea { min-width: 1100px; padding: 15px; background: white; }
+        #printableArea { min-width: 1100px; padding: 20px; background: white; }
         
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #333; padding: 10px 5px; text-align: center; }
         
+        /* Styl nagłówków kolumn (Daty) */
+        .header-date-input {
+            width: 100%; border: none; background: #eee; text-align: center;
+            font-weight: bold; font-size: 14px; padding: 5px 0;
+        }
+
         .col-proj { 
             text-align: left !important; min-width: 250px; font-weight: bold; 
             position: sticky; left: 0; background: #fff; z-index: 5;
             border-right: 2px solid #000;
         }
-        thead th { background: #eee; position: sticky; top: 0; z-index: 6; }
-        .row-de { background-color: #f1faff !important; }
 
-        /* Styl wpisywania */
+        /* Styl pól do wpisywania cyferek */
         .cell-input { 
-            width: 55px; height: 45px; border: 1px solid #bbb; border-radius: 6px; 
-            text-align: center; font-weight: bold; font-size: 20px; 
-            background: #fff; display: block; margin: 0 auto;
+            width: 60px; height: 40px; border: 1px solid #ccc; border-radius: 4px; 
+            text-align: center; font-weight: bold; font-size: 18px; 
+            background: #fff;
         }
-        .cell-zero { background-color: #ffebed !important; color: #d93025; border: 2px solid #d93025 !important; }
+        .cell-input:focus { border-color: var(--primary); outline: none; background: #eef6ff; }
+        .cell-zero { background-color: #ffebed !important; color: #d93025; }
 
         .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         .btn { 
             width: 100%; padding: 16px; border: none; border-radius: 10px;
             font-weight: 900; font-size: 14px; color: white; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px;
+            text-transform: uppercase;
         }
         .btn-save { background: #333; }
         .btn-pdf { background: var(--accent); }
-        .btn-add { background: var(--success); }
 
-        .date-input { width: 100%; border: none; font-size: 10px; text-align: center; font-weight: bold; background: transparent; }
+        .row-de { background-color: #f1faff !important; }
+        .sum-col { font-weight: 900; background: #f8f9fa; }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <span class="section-label">1. Wybierz miesiąc</span>
+    <span class="section-label">1. Wybierz Miesiąc</span>
     <div class="months-grid" id="monthNav"></div>
+    <button class="change-month-btn" onclick="toggleMonthView()">🔄 ZMIEŃ MIESIĄC / POKAŻ LISTĘ</button>
     
-    <span class="section-label">2. Widoczność projektów</span>
-    <div class="filter-box" id="projectFilterList"></div>
-
-    <span class="section-label">3. Ustawienia tabeli</span>
-    <div class="controls">
-        <div class="input-box">
-            <label style="font-size:10px">Start (Rzymskie)</label>
-            <input type="text" id="startRoman" oninput="updateConfig()">
+    <div id="extraSettings">
+        <span class="section-label" style="margin-top:15px">2. Ilość kolumn (ilość dni/spotkań)</span>
+        <div class="controls">
+            <input type="number" id="colCount" value="5" oninput="updateConfig()" placeholder="Ilość kolumn">
         </div>
-        <div class="input-box">
-            <label style="font-size:10px">Ilość kolumn</label>
-            <input type="number" id="colCount" oninput="updateConfig()">
-        </div>
-    </div>
 
-    <div class="btn-group">
-        <button class="btn btn-save" onclick="saveData()">💾 ZAPISZ DANE W TELEFONIE</button>
-        <button class="btn btn-pdf" onclick="generatePDF()">📄 POBIERZ PDF (A3)</button>
+        <div class="btn-group">
+            <button class="btn btn-save" onclick="saveData()">💾 ZAPISZ DANE W TELEFONIE</button>
+            <button class="btn btn-pdf" onclick="generatePDF()">📄 POBIERZ PDF (A3)</button>
+        </div>
     </div>
 </div>
 
@@ -141,139 +139,106 @@
         {pl: "Październik", de: "Oktober"}, {pl: "Listopad", de: "November"}, {pl: "Grudzień", de: "Dezember"}
     ];
 
-    // Pełna lista wszystkich projektów
     const allProjects = [
         "BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV", 
-        "Radzyń -Łuków 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino", 
-        "CPK", "Eksploatacja", "Krosno", "BLP kabel",
-        "Stade [DE]", "UW Semlin [DE]", "Malchow [DE]", "Munsterberg [DE]", "Hamburg [DE]", 
-        "Avacon [DE]", "Borken [DE]", "Karben [DE]", "Frankfurt [DE]", "Siedenbrünzow [DE]"
+        "Radzyń -Łuków LE 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino", 
+        "Stade", "CPK", "Eksploatacja", "BLP kabel", "Malchow munsterberg", "Isolat_Seiltausch_Hamburg", "Avacon"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_mobile_v1')) || {
-        projects: [...allProjects],
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_v2')) || {
         selectedProjects: [...allProjects],
         monthsData: {}
     };
 
     let curM = new Date().getMonth();
+    let isMonthCollapsed = true;
 
     function init() {
+        renderMonthButtons();
+        sync();
+    }
+
+    function renderMonthButtons() {
         const nav = document.getElementById('monthNav');
         nav.innerHTML = '';
+        nav.className = `months-grid ${isMonthCollapsed ? 'single-mode' : ''}`;
+
         months.forEach((m, i) => {
             const b = document.createElement('div');
             b.className = `m-btn ${i === curM ? 'active' : ''}`;
             b.textContent = m.pl.toUpperCase();
-            b.onclick = () => { curM = i; sync(); };
+            b.onclick = () => { curM = i; isMonthCollapsed = true; renderMonthButtons(); sync(); };
             nav.appendChild(b);
         });
-        sync();
     }
+
+    function toggleMonthView() { isMonthCollapsed = !isMonthCollapsed; renderMonthButtons(); }
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { startR: "I", count: 5, dates: [], values: {} };
+            db.monthsData[curM] = { count: 4, colTitles: ["Data 1", "Data 2", "Data 3", "Data 4"], values: {} };
         }
-        document.getElementById('startRoman').value = db.monthsData[curM].startR;
         document.getElementById('colCount').value = db.monthsData[curM].count;
-        renderFilter();
-        render();
-    }
-
-    function renderFilter() {
-        const container = document.getElementById('projectFilterList');
-        container.innerHTML = '';
-        db.projects.forEach(name => {
-            const div = document.createElement('div');
-            div.className = 'filter-item';
-            const isChecked = db.selectedProjects.includes(name);
-            div.innerHTML = `<input type="checkbox" style="width:20px;height:20px" ${isChecked ? 'checked' : ''} onchange="toggleProject('${name}')"> <span>${name}</span>`;
-            container.appendChild(div);
-        });
-    }
-
-    function toggleProject(name) {
-        const idx = db.selectedProjects.indexOf(name);
-        if (idx > -1) db.selectedProjects.splice(idx, 1);
-        else db.selectedProjects.push(name);
         render();
     }
 
     function updateConfig() {
-        db.monthsData[curM].startR = document.getElementById('startRoman').value.toUpperCase() || "I";
-        db.monthsData[curM].count = parseInt(document.getElementById('colCount').value) || 1;
+        const newCount = parseInt(document.getElementById('colCount').value) || 1;
+        db.monthsData[curM].count = newCount;
         render();
-    }
-
-    function romanToInt(s) {
-        const map = {I:1, V:5, X:10, L:50, C:100};
-        let res = 0; s = s.toUpperCase();
-        for(let i=0; i<s.length; i++) {
-            const cur = map[s[i]]; const next = map[s[i+1]];
-            if(next > cur) { res += next - cur; i++; } else res += cur;
-        }
-        return res || 1;
-    }
-
-    function intToRoman(num) {
-        const lookup = {X:10,IX:9,V:5,IV:4,I:1};
-        let roman = '';
-        for (let i in lookup) { while (num >= lookup[i]) { roman += i; num -= lookup[i]; } }
-        return roman;
     }
 
     function render() {
         const mData = db.monthsData[curM];
         document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} / ${months[curM].de.toUpperCase()} 2026`;
+        
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
-        const startInt = romanToInt(mData.startR);
 
-        let h1 = `<tr><th rowspan="2" style="width:40px">LP</th><th rowspan="2" class="col-proj">PROJEKT / BAUVORHABEN</th>`;
-        let h2 = `<tr>`;
-        for(let i=0; i<mData.count; i++) {
-            h1 += `<th style="width:80px">${intToRoman(startInt + i)}</th>`;
-            h2 += `<th><input type="text" class="date-input" placeholder="Data" value="${mData.dates[i] || ''}" oninput="db.monthsData[${curM}].dates[${i}]=this.value"></th>`;
+        // Nagłówek Tabeli
+        let hRow = `<tr><th style="width:40px">LP</th><th class="col-proj">Projekt</th>`;
+        for(let i=0; i < mData.count; i++) {
+            let title = mData.colTitles[i] || `Data ${i+1}`;
+            hRow += `<th style="width:80px">
+                <input type="text" class="header-date-input" value="${title}" 
+                oninput="db.monthsData[${curM}].colTitles[${i}]=this.value">
+            </th>`;
         }
-        h1 += `<th rowspan="2" style="width:70px">SUMA</th><th rowspan="2" style="width:80px">YTD</th></tr>`;
-        h2 += `</tr>`;
-        head.innerHTML = h1 + h2;
+        hRow += `<th class="sum-col">SUMA</th><th class="sum-col">NARAST.</th></tr>`;
+        head.innerHTML = hRow;
 
+        // Treść Tabeli
         body.innerHTML = '';
-        let lp = 1;
-        db.projects.forEach((name) => {
-            if (!db.selectedProjects.includes(name)) return;
+        allProjects.forEach((name, idx) => {
             const tr = document.createElement('tr');
-            if(name.includes('[DE]')) tr.className = 'row-de';
-
             const rowVals = mData.values[name] || Array(mData.count).fill('');
+            
             let mSum = rowVals.reduce((a, b) => a + (parseFloat(b) || 0), 0);
-            let cSum = calculateCum(name, curM, mSum);
+            let ytd = calculateYTD(name, curM, mSum);
 
-            let rowHtml = `<td>${lp++}</td><td class="col-proj">${name}</td>`;
-            for(let i=0; i<mData.count; i++) {
-                const val = rowVals[i] || '';
-                rowHtml += `<td>
-                    <input type="text" inputmode="numeric" class="cell-input ${val === '0' ? 'cell-zero' : ''}" 
-                    value="${val}" oninput="updateCell('${name}', ${i}, this.value)">
+            let html = `<td>${idx + 1}</td><td class="col-proj">${name}</td>`;
+            for(let i=0; i < mData.count; i++) {
+                let val = rowVals[i] || '';
+                html += `<td>
+                    <input type="number" class="cell-input ${val === '0' ? 'cell-zero' : ''}" 
+                    value="${val}" oninput="updateVal('${name}', ${i}, this.value)">
                 </td>`;
             }
-            rowHtml += `<td style="font-weight:900">${mSum || ''}</td><td style="font-weight:900; color:var(--primary)">${cSum || ''}</td>`;
-            tr.innerHTML = rowHtml;
+            html += `<td class="sum-col">${mSum || 0}</td><td class="sum-col" style="color:var(--primary)">${ytd}</td>`;
+            tr.innerHTML = html;
             body.appendChild(tr);
         });
     }
 
-    function updateCell(proj, cIdx, val) {
+    function updateVal(proj, cIdx, val) {
         if(!db.monthsData[curM].values[proj]) db.monthsData[curM].values[proj] = [];
         db.monthsData[curM].values[proj][cIdx] = val;
-        render();
+        render(); // Odśwież sumy
     }
 
-    function calculateCum(proj, mIdx, curSum) {
+    function calculateYTD(proj, mIdx, curSum) {
         let total = 0;
-        for(let i=0; i<mIdx; i++) {
+        for(let i=0; i < mIdx; i++) {
             if(db.monthsData[i] && db.monthsData[i].values[proj]) {
                 total += db.monthsData[i].values[proj].reduce((a, b) => a + (parseFloat(b) || 0), 0);
             }
@@ -282,8 +247,8 @@
     }
 
     function saveData() {
-        localStorage.setItem('toolbox_2026_mobile_v1', JSON.stringify(db));
-        alert("DANE ZAPISANE!");
+        localStorage.setItem('toolbox_2026_v2', JSON.stringify(db));
+        alert("Zapisano!");
     }
 
     function generatePDF() {
