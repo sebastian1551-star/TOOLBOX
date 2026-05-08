@@ -34,21 +34,23 @@
         }
         .m-btn { 
             background: #f8f9fa; border: 1px solid #ddd; padding: 12px 2px; 
-            cursor: pointer; text-align: center; font-size: 11px; font-weight: bold; border-radius: 8px;
+            cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; min-height: 44px;
         }
         .m-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         
-        .months-grid.single-mode .m-btn:not(.active) { display: none; }
-        .months-grid.single-mode { grid-template-columns: 1fr; }
+        /* Klasa dodawana przez JavaScript po wyborze */
+        .months-grid.collapsed .m-btn:not(.active) { display: none; }
+        .months-grid.collapsed { grid-template-columns: 1fr; }
 
         .change-month-btn {
-            background: #6c757d; color: white; border: none; padding: 10px; 
-            border-radius: 6px; font-size: 11px; font-weight: bold; width: 100%; margin-top: 5px;
-            display: none; cursor: pointer;
+            background: #6c757d; color: white; border: none; padding: 12px; 
+            border-radius: 8px; font-size: 12px; font-weight: bold; width: 100%; margin-top: 5px;
+            cursor: pointer; display: none; text-transform: uppercase;
         }
-        .single-mode + .change-month-btn { display: block; }
+        .months-grid.collapsed + .change-month-btn { display: block; }
 
-        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+        .controls { margin-bottom: 15px; }
         input[type="number"] { 
             padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; width: 100%;
         }
@@ -63,10 +65,9 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #333; padding: 10px 5px; text-align: center; }
         
-        /* Styl nagłówków kolumn (Daty) */
         .header-date-input {
             width: 100%; border: none; background: #eee; text-align: center;
-            font-weight: bold; font-size: 14px; padding: 5px 0;
+            font-weight: bold; font-size: 14px; padding: 8px 0; border-radius: 4px;
         }
 
         .col-proj { 
@@ -75,26 +76,22 @@
             border-right: 2px solid #000;
         }
 
-        /* Styl pól do wpisywania cyferek */
         .cell-input { 
-            width: 60px; height: 40px; border: 1px solid #ccc; border-radius: 4px; 
-            text-align: center; font-weight: bold; font-size: 18px; 
-            background: #fff;
+            width: 65px; height: 45px; border: 1px solid #ccc; border-radius: 4px; 
+            text-align: center; font-weight: bold; font-size: 18px; background: #fff;
         }
         .cell-input:focus { border-color: var(--primary); outline: none; background: #eef6ff; }
-        .cell-zero { background-color: #ffebed !important; color: #d93025; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .btn { 
             width: 100%; padding: 16px; border: none; border-radius: 10px;
             font-weight: 900; font-size: 14px; color: white; cursor: pointer;
-            text-transform: uppercase;
+            text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-save { background: #333; }
         .btn-pdf { background: var(--accent); }
 
-        .row-de { background-color: #f1faff !important; }
-        .sum-col { font-weight: 900; background: #f8f9fa; }
+        .sum-col { font-weight: 900; background: #f8f9fa; min-width: 60px; }
     </style>
 </head>
 <body>
@@ -102,12 +99,12 @@
 <div class="no-print">
     <span class="section-label">1. Wybierz Miesiąc</span>
     <div class="months-grid" id="monthNav"></div>
-    <button class="change-month-btn" onclick="toggleMonthView()">🔄 ZMIEŃ MIESIĄC / POKAŻ LISTĘ</button>
+    <button class="change-month-btn" id="showAllBtn" onclick="expandMonths()">🔄 Zmień miesiąc / Pokaż wszystkie</button>
     
-    <div id="extraSettings">
+    <div id="settingsContainer">
         <span class="section-label" style="margin-top:15px">2. Ilość kolumn (ilość dni/spotkań)</span>
         <div class="controls">
-            <input type="number" id="colCount" value="5" oninput="updateConfig()" placeholder="Ilość kolumn">
+            <input type="number" id="colCount" value="5" onchange="updateColCount()">
         </div>
 
         <div class="btn-group">
@@ -121,7 +118,7 @@
     <div id="printableArea">
         <header style="text-align:center; border-bottom: 3px solid var(--primary); margin-bottom:15px; padding-bottom:10px;">
             <div style="font-size: 22px; font-weight: 900;">ZESTAWIENIE PRZEPROWADZONYCH TOOLBOX TALK</div>
-            <div id="monthLabel" style="font-size: 16px; font-weight: bold; color: var(--primary); margin-top:5px;"></div>
+            <div id="monthLabel" style="font-size: 18px; font-weight: bold; color: var(--primary); margin-top:5px;"></div>
         </header>
 
         <table id="mainTable">
@@ -145,13 +142,13 @@
         "Stade", "CPK", "Eksploatacja", "BLP kabel", "Malchow munsterberg", "Isolat_Seiltausch_Hamburg", "Avacon"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_v2')) || {
-        selectedProjects: [...allProjects],
+    // Baza danych
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_final')) || {
         monthsData: {}
     };
 
-    let curM = new Date().getMonth();
-    let isMonthCollapsed = true;
+    let curM = new Date().getMonth(); 
+    let collapsedView = true;
 
     function init() {
         renderMonthButtons();
@@ -161,45 +158,64 @@
     function renderMonthButtons() {
         const nav = document.getElementById('monthNav');
         nav.innerHTML = '';
-        nav.className = `months-grid ${isMonthCollapsed ? 'single-mode' : ''}`;
+        
+        if (collapsedView) {
+            nav.classList.add('collapsed');
+        } else {
+            nav.classList.remove('collapsed');
+        }
 
         months.forEach((m, i) => {
             const b = document.createElement('div');
             b.className = `m-btn ${i === curM ? 'active' : ''}`;
             b.textContent = m.pl.toUpperCase();
-            b.onclick = () => { curM = i; isMonthCollapsed = true; renderMonthButtons(); sync(); };
+            b.onclick = () => selectMonth(i);
             nav.appendChild(b);
         });
     }
 
-    function toggleMonthView() { isMonthCollapsed = !isMonthCollapsed; renderMonthButtons(); }
+    function selectMonth(index) {
+        curM = index;
+        collapsedView = true;
+        renderMonthButtons();
+        sync();
+    }
+
+    function expandMonths() {
+        collapsedView = false;
+        renderMonthButtons();
+    }
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 4, colTitles: ["Data 1", "Data 2", "Data 3", "Data 4"], values: {} };
+            db.monthsData[curM] = { 
+                count: 4, 
+                colTitles: ["Data 1", "Data 2", "Data 3", "Data 4"], 
+                values: {} 
+            };
         }
         document.getElementById('colCount').value = db.monthsData[curM].count;
-        render();
+        renderTable();
     }
 
-    function updateConfig() {
-        const newCount = parseInt(document.getElementById('colCount').value) || 1;
-        db.monthsData[curM].count = newCount;
-        render();
+    function updateColCount() {
+        const val = parseInt(document.getElementById('colCount').value) || 1;
+        db.monthsData[curM].count = val;
+        renderTable();
     }
 
-    function render() {
+    function renderTable() {
         const mData = db.monthsData[curM];
         document.getElementById('monthLabel').textContent = `${months[curM].pl.toUpperCase()} / ${months[curM].de.toUpperCase()} 2026`;
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
 
-        // Nagłówek Tabeli
-        let hRow = `<tr><th style="width:40px">LP</th><th class="col-proj">Projekt</th>`;
+        // Nagłówek
+        let hRow = `<tr><th style="width:40px">LP</th><th class="col-proj">Projekt / Bauvorhaben</th>`;
         for(let i=0; i < mData.count; i++) {
             let title = mData.colTitles[i] || `Data ${i+1}`;
-            hRow += `<th style="width:80px">
+            hRow += `<th style="width:90px">
                 <input type="text" class="header-date-input" value="${title}" 
                 oninput="db.monthsData[${curM}].colTitles[${i}]=this.value">
             </th>`;
@@ -207,12 +223,13 @@
         hRow += `<th class="sum-col">SUMA</th><th class="sum-col">NARAST.</th></tr>`;
         head.innerHTML = hRow;
 
-        // Treść Tabeli
+        // Wiersze
         body.innerHTML = '';
         allProjects.forEach((name, idx) => {
             const tr = document.createElement('tr');
-            const rowVals = mData.values[name] || Array(mData.count).fill('');
+            if (!mData.values[name]) mData.values[name] = Array(mData.count).fill('');
             
+            const rowVals = mData.values[name];
             let mSum = rowVals.reduce((a, b) => a + (parseFloat(b) || 0), 0);
             let ytd = calculateYTD(name, curM, mSum);
 
@@ -220,20 +237,34 @@
             for(let i=0; i < mData.count; i++) {
                 let val = rowVals[i] || '';
                 html += `<td>
-                    <input type="number" class="cell-input ${val === '0' ? 'cell-zero' : ''}" 
-                    value="${val}" oninput="updateVal('${name}', ${i}, this.value)">
+                    <input type="number" class="cell-input" value="${val}" 
+                    oninput="updateVal('${name}', ${i}, this.value)">
                 </td>`;
             }
-            html += `<td class="sum-col">${mSum || 0}</td><td class="sum-col" style="color:var(--primary)">${ytd}</td>`;
+            html += `<td class="sum-col">${mSum}</td><td class="sum-col" style="color:var(--primary)">${ytd}</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
     }
 
     function updateVal(proj, cIdx, val) {
-        if(!db.monthsData[curM].values[proj]) db.monthsData[curM].values[proj] = [];
         db.monthsData[curM].values[proj][cIdx] = val;
-        render(); // Odśwież sumy
+        // Re-render tylko sum, żeby nie tracić focusu na inputach przy każdym wpisaniu
+        renderTableSumOnly();
+    }
+
+    // Funkcja do szybkiego przeliczania sum bez przeładowania całej tabeli (zapobiega "skakaniu" klawiatury)
+    function renderTableSumOnly() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        allProjects.forEach((name, idx) => {
+            const rowVals = db.monthsData[curM].values[name];
+            let mSum = rowVals.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            let ytd = calculateYTD(name, curM, mSum);
+            
+            const cells = rows[idx].querySelectorAll('.sum-col');
+            cells[0].textContent = mSum;
+            cells[1].textContent = ytd;
+        });
     }
 
     function calculateYTD(proj, mIdx, curSum) {
@@ -247,8 +278,8 @@
     }
 
     function saveData() {
-        localStorage.setItem('toolbox_2026_v2', JSON.stringify(db));
-        alert("Zapisano!");
+        localStorage.setItem('toolbox_2026_final', JSON.stringify(db));
+        alert("Dane zostały zapisane w pamięci telefonu!");
     }
 
     function generatePDF() {
@@ -260,7 +291,7 @@
         });
     }
 
-    init();
+    window.onload = init;
 </script>
 </body>
 </html>
