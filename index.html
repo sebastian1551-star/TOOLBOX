@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - PL/DE (Excel Version)</title>
-    <!-- Biblioteki: PDF, Canvas i EXCEL -->
+    <title>Toolbox Manager 2026 - FULL PERSISTENT</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -24,7 +23,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 5px; background: var(--bg); font-size: 13px; }
 
         .no-print-zone { 
-            background: #fff; padding: 10px; border-radius: 8px; 
+            background: #fff; padding: 15px; border-radius: 8px; 
             margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
@@ -33,7 +32,7 @@
 
         .filter-container {
             background: #f9f9f9; border: 1px solid #ddd; padding: 5px; border-radius: 5px;
-            max-height: 120px; overflow-y: auto; font-size: 11px;
+            max-height: 150px; overflow-y: auto; font-size: 11px;
         }
         .filter-item { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; cursor: pointer; }
 
@@ -45,42 +44,40 @@
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; overflow: hidden; height: 38px; }
+        th, td { border: 1px solid #666; padding: 4px 2px; text-align: center; height: 38px; }
         th { background: #f0f0f0; font-size: 11px; font-weight: bold; }
         
         .col-lp { width: 35px; }
-        .col-proj { width: 380px; text-align: left !important; padding-left: 8px; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
+        .col-proj { width: 380px; text-align: left !important; padding-left: 8px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
         .col-sum { width: 95px; background: #f9f9f9; font-weight: bold; }
 
-        .cell-input { width: 95%; padding: 4px; border: 1px solid #ddd; text-align: center; font-size: 16px; font-weight: bold; border-radius: 3px; }
+        .cell-input { width: 90%; padding: 4px; border: 1px solid #ccc; text-align: center; font-size: 16px; font-weight: bold; border-radius: 3px; }
+        .cell-input:focus { border-color: var(--primary); outline: none; background: #fffde7; }
+        
         .header-input { 
             width: 100%; border: none; background: transparent; 
             text-align: center; font-size: 18px; font-weight: 900; color: var(--primary); 
         }
 
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; transition: 0.2s; }
-        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
-        .btn-save { background: var(--primary); }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; }
+        .btn-save { background: var(--success); }
         .btn-pdf { background: var(--accent); }
         .btn-excel { background: var(--excel); }
-        .btn-add { background: var(--success); }
-        .btn-de { background: #555; margin-top: 3px; font-size: 10px; padding: 4px 8px; }
-        .btn-backup { background: var(--secondary); }
-        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; float: right; padding: 0; line-height: 1; }
+        .btn-add { background: var(--primary); }
+        .btn-del { background: none; color: var(--danger); font-size: 18px; border: none; cursor: pointer; float: right; padding: 0; }
 
         .tag-de { 
             background: #000; color: #ffce00; padding: 2px 5px; 
             font-size: 10px; font-weight: 900; border-radius: 3px; 
-            margin-left: 6px; border: 1px solid #ffce00; vertical-align: middle;
+            margin-left: 6px; border: 1px solid #ffce00;
         }
 
         .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 10px; }
-        .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 4px; }
-        .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .m-btn { padding: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 4px; }
+        .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .footer-row { background: #eee; font-weight: bold; font-size: 16px; border-top: 2px solid #000; }
-        .lang-sub { display: block; font-size: 9px; color: #666; font-weight: normal; margin-top: 2px; }
-
+        
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
             #printableArea { width: 100%; padding: 0; }
@@ -93,32 +90,32 @@
     <div class="months-nav" id="monthNav"></div>
     <div class="admin-grid">
         <div>
-            <label>PROJEKT / BAUVORHABEN:</label>
+            <label><strong>PROJEKT / BAUVORHABEN:</strong></label>
             <div class="input-group">
-                <input type="text" id="newProjName" placeholder="Nowy projekt..." style="flex-grow:1; padding: 5px;">
-                <button class="btn btn-add" onclick="addNewProject()">DODAJ</button>
+                <input type="text" id="newProjName" placeholder="Nazwa projektu..." style="flex-grow:1; padding: 8px;">
+                <button class="btn btn-add" onclick="addNewProject()">DODAJ / ZUFÜGEN</button>
             </div>
-            <button class="btn btn-de" onclick="filterDE()">TYLKO DE</button>
-            <button class="btn btn-de" style="background:#888" onclick="resetFilter()">WSZYSTKO</button>
+            <div style="margin-top: 10px;">
+                <button class="btn" style="background:#555" onclick="filterDE()">TYLKO DE</button>
+                <button class="btn" style="background:#888" onclick="resetFilter()">WSZYSTKO</button>
+            </div>
         </div>
 
         <div>
-            <label>WIDOCZNOŚĆ:</label>
+            <label><strong>WIDOCZNOŚĆ / SICHTBARKEIT:</strong></label>
             <div id="filterCheckboxes" class="filter-container"></div>
         </div>
 
         <div style="text-align: right;">
             <div style="margin-bottom: 8px;">
                 <label>KOLUMNY:</label>
-                <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:5px; width:45px;">
-                <button class="btn btn-save" onclick="saveData()">ZAPISZ</button>
+                <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:5px; width:50px;">
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 5px; flex-wrap: wrap;">
-                <button class="btn btn-excel" onclick="exportToExcel()">EKSPORT DO EXCEL</button>
+                <button class="btn btn-excel" onclick="exportToExcel()">EXCEL</button>
                 <button class="btn btn-pdf" onclick="generatePDF()">PDF A3</button>
-                <button class="btn btn-backup" onclick="exportData()">BACKUP (JSON)</button>
-                <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-                <button class="btn btn-backup" onclick="document.getElementById('importFile').click()">IMPORT</button>
+                <button class="btn btn-save" onclick="saveToLocalStorage(true)">ZAPISZ RĘCZNIE</button>
+                <button class="btn" style="background: #607d8b" onclick="exportData()">BACKUP</button>
             </div>
         </div>
     </div>
@@ -127,10 +124,10 @@
 <div id="printableArea">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 3px solid var(--primary); padding-bottom: 5px;">
         <div>
-            <h1 style="margin:0; font-size: 24px;">ZESTAWIENIE TOOLBOX TALK 2026</h1>
-            <p style="margin:0; color: #444; font-size: 12px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen</p>
+            <h1 style="margin:0; font-size: 26px;">ZESTAWIENIE TOOLBOX TALK 2026</h1>
+            <p style="margin:0; color: #444; font-size: 14px; font-weight: bold;">Übersicht der Sicherheitsunterweisungen</p>
         </div>
-        <div id="monthLabel" style="text-align: right; font-size: 20px; font-weight: 900; color: var(--primary); line-height: 1.2;"></div>
+        <div id="monthLabel" style="text-align: right; font-size: 22px; font-weight: 900; color: var(--primary); line-height: 1.2;"></div>
     </div>
 
     <table id="mainTable">
@@ -158,7 +155,6 @@
     ].sort();
 
     function toRoman(num) {
-        if (num < 1) return "";
         const map = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
         let result = '';
         for (let key in map) {
@@ -178,6 +174,7 @@
         return total || 0;
     }
 
+    // GŁÓWNA BAZA DANYCH
     let db = JSON.parse(localStorage.getItem('toolbox_2026_master')) || { 
         projects: [...initialProjectsList],
         visibleProjects: [...initialProjectsList],
@@ -191,25 +188,31 @@
         sync();
     }
 
-    function renderMonthButtons() {
-        const nav = document.getElementById('monthNav');
-        nav.innerHTML = '';
-        months.forEach((m, i) => {
-            const b = document.createElement('button');
-            b.className = `m-btn ${i === curM ? 'active' : ''}`;
-            b.textContent = m.pl;
-            b.onclick = () => { curM = i; renderMonthButtons(); sync(); };
-            nav.appendChild(b);
-        });
+    function saveToLocalStorage(alertUser = false) {
+        localStorage.setItem('toolbox_2026_master', JSON.stringify(db));
+        if(alertUser) alert("Zapisano pomyślnie! / Erfolgreich gespeichert!");
     }
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colTitles: Array.from({length: 15}, (_, i) => toRoman(i + 1)), values: {} };
+            db.monthsData[curM] = { 
+                count: 5, 
+                colTitles: Array.from({length: 15}, (_, i) => toRoman(i + 1)), 
+                values: {} 
+            };
         }
         document.getElementById('colCount').value = db.monthsData[curM].count || 5;
         renderFilterList();
         renderTable();
+    }
+
+    function updateValue(projectName, colIdx, val) {
+        if (!db.monthsData[curM].values[projectName]) {
+            db.monthsData[curM].values[projectName] = Array(15).fill('');
+        }
+        db.monthsData[curM].values[projectName][colIdx] = val;
+        saveToLocalStorage(); // Auto-zapis
+        refreshTotals();
     }
 
     function triggerAutoFill(idx, newVal) {
@@ -222,6 +225,7 @@
                 mData.colTitles[i] = toRoman(startNum);
             }
         }
+        saveToLocalStorage();
         renderTable();
     }
 
@@ -231,90 +235,91 @@
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
-        const foot = document.getElementById('tableFoot');
 
+        // NAGŁÓWEK
         let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
             hRow += `<th><input type="text" class="header-input" value="${mData.colTitles[i]}" onchange="triggerAutoFill(${i}, this.value)"></th>`;
         }
-        hRow += `<th class="col-sum">MIESIĄC<br><span style="font-size:8px;font-weight:normal">MONAT</span></th>
-                 <th class="col-sum">ROCZNIE<br><span style="font-size:8px;font-weight:normal">JÄHRLICH</span></th></tr>`;
+        hRow += `<th class="col-sum">MIESIĄC<br>MONAT</th><th class="col-sum">ROCZNIE<br>JÄHRLICH</th></tr>`;
         head.innerHTML = hRow;
 
+        // BODY
         body.innerHTML = '';
-        const filteredProjects = db.projects.filter(p => db.visibleProjects.includes(p));
-        
-        let colTotals = Array(mData.count).fill(0);
-        let grandMonthTotal = 0;
-        let grandYTDTotal = 0;
+        const activeProjects = db.projects.filter(p => db.visibleProjects.includes(p));
 
-        filteredProjects.forEach((name, idx) => {
+        activeProjects.forEach((name, idx) => {
             if (!mData.values[name]) mData.values[name] = Array(15).fill('');
             const rowVals = mData.values[name];
-            let mSum = rowVals.slice(0, mData.count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
             
-            let ytd = 0;
-            for(let m=0; m <= curM; m++) {
-                if(db.monthsData[m] && db.monthsData[m].values[name]) {
-                    const cCount = db.monthsData[m].count || 5;
-                    ytd += db.monthsData[m].values[name].slice(0, cCount).reduce((a, b) => a + (parseFloat(b) || 0), 0);
-                }
-            }
-
-            grandMonthTotal += mSum; grandYTDTotal += ytd;
-            for(let i=0; i<mData.count; i++) colTotals[i] += (parseFloat(rowVals[i]) || 0);
-
-            const isDE = name.toUpperCase().includes('DE');
             const tr = document.createElement('tr');
+            tr.dataset.project = name;
+            const isDE = name.toUpperCase().includes('DE');
+            
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">${name} ${isDE ? '<span class="tag-de">DE</span>' : ''} <button class="btn-del" onclick="removeProject('${name}')">×</button></td>`;
+            
             for(let i=0; i < mData.count; i++) {
-                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
+                html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" oninput="updateValue('${name}', ${i}, this.value)"></td>`;
             }
-            html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary);">${ytd}</td>`;
+            html += `<td class="row-month-total col-sum">0</td><td class="row-ytd-total col-sum" style="color:var(--primary);">0</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
-
-        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
-        for(let i=0; i < mData.count; i++) fRow += `<td>${colTotals[i]}</td>`;
-        fRow += `<td>${grandMonthTotal}</td><td style="color:var(--primary);">${grandYTDTotal}</td></tr>`;
-        foot.innerHTML = fRow;
+        
+        refreshTotals();
     }
 
-    function exportToExcel() {
+    function refreshTotals() {
         const mData = db.monthsData[curM];
-        const filteredProjects = db.projects.filter(p => db.visibleProjects.includes(p));
-        let headers = ["LP", "Projekt / Bauvorhaben"];
-        for(let i=0; i < mData.count; i++) {
-            headers.push(mData.colTitles[i]);
-        }
-        headers.push("Suma Miesiąc (Monat)", "Suma Rocznie (Jährlich)");
+        const rows = document.querySelectorAll('#tableBody tr');
+        let colTotals = Array(mData.count).fill(0);
+        let grandMonth = 0;
+        let grandYTD = 0;
 
-        let rows = [headers];
-        filteredProjects.forEach((name, idx) => {
-            let row = [idx + 1, name];
-            const rowVals = mData.values[name];
+        rows.forEach(row => {
+            const name = row.dataset.project;
+            const inputs = row.querySelectorAll('.cell-input');
             let mSum = 0;
-            for(let i=0; i < mData.count; i++) {
-                let val = parseFloat(rowVals[i]) || 0;
-                row.push(val);
+            
+            inputs.forEach((input, i) => {
+                let val = parseFloat(input.value) || 0;
                 mSum += val;
-            }
+                colTotals[i] += val;
+            });
+
+            // Oblicz ROCZNIE (YTD)
             let ytd = 0;
-            for(let m=0; m <= curM; m++) {
+            for(let m=0; m<=11; m++) {
                 if(db.monthsData[m] && db.monthsData[m].values[name]) {
-                    ytd += db.monthsData[m].values[name].slice(0, db.monthsData[m].count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+                    const c = db.monthsData[m].count;
+                    ytd += db.monthsData[m].values[name].slice(0, c).reduce((a, b) => a + (parseFloat(b) || 0), 0);
                 }
             }
-            row.push(mSum, ytd);
-            rows.push(row);
+
+            row.querySelector('.row-month-total').textContent = mSum;
+            row.querySelector('.row-ytd-total').textContent = ytd;
+            grandMonth += mSum;
+            grandYTD += ytd;
         });
 
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Toolbox_" + months[curM].pl);
-        XLSX.writeFile(workbook, `Toolbox_2026_${months[curM].pl}.xlsx`);
+        // STOPKA
+        let fRow = `<tr class="footer-row"><td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
+        for(let i=0; i < mData.count; i++) fRow += `<td>${colTotals[i]}</td>`;
+        fRow += `<td>${grandMonth}</td><td>${grandYTD}</td></tr>`;
+        document.getElementById('tableFoot').innerHTML = fRow;
+    }
+
+    function renderMonthButtons() {
+        const nav = document.getElementById('monthNav');
+        nav.innerHTML = '';
+        months.forEach((m, i) => {
+            const b = document.createElement('button');
+            b.className = `m-btn ${i === curM ? 'active' : ''}`;
+            b.textContent = m.pl;
+            b.onclick = () => { curM = i; renderMonthButtons(); sync(); };
+            nav.appendChild(b);
+        });
     }
 
     function renderFilterList() {
@@ -332,11 +337,13 @@
     function toggleVisibility(proj) {
         if (db.visibleProjects.includes(proj)) db.visibleProjects = db.visibleProjects.filter(p => p !== proj);
         else db.visibleProjects.push(proj);
+        saveToLocalStorage();
         renderTable();
     }
 
     function updateColCount() {
         db.monthsData[curM].count = parseInt(document.getElementById('colCount').value) || 1;
+        saveToLocalStorage();
         renderTable();
     }
 
@@ -347,68 +354,77 @@
             db.visibleProjects.push(name);
             db.projects.sort();
             document.getElementById('newProjName').value = '';
-            renderFilterList(); renderTable();
-            saveData();
+            saveToLocalStorage();
+            sync();
         }
     }
 
     function removeProject(name) {
-        if (confirm(`Usunąć ${name}?`)) {
+        if (confirm(`Usunąć projekt: ${name}?`)) {
             db.projects = db.projects.filter(p => p !== name);
             db.visibleProjects = db.visibleProjects.filter(p => p !== name);
+            saveToLocalStorage();
             renderTable();
-            saveData();
+            renderFilterList();
         }
     }
 
     function filterDE() {
         db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('HAMBURG'));
+        saveToLocalStorage();
         renderFilterList(); renderTable();
     }
 
     function resetFilter() {
         db.visibleProjects = [...db.projects];
+        saveToLocalStorage();
         renderFilterList(); renderTable();
     }
 
-    function saveData() {
-        localStorage.setItem('toolbox_2026_master', JSON.stringify(db));
-        alert("Zapisano!");
-    }
+    function exportToExcel() {
+        const mData = db.monthsData[curM];
+        let headers = ["LP", "Projekt / Bauvorhaben"];
+        for(let i=0; i < mData.count; i++) headers.push(mData.colTitles[i]);
+        headers.push("Suma Miesiąc", "Suma Rocznie");
 
-    function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "toolbox_backup.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    }
+        let rows = [headers];
+        db.projects.filter(p => db.visibleProjects.includes(p)).forEach((name, idx) => {
+            let row = [idx + 1, name];
+            let mSum = 0;
+            for(let i=0; i < mData.count; i++) {
+                let v = parseFloat(mData.values[name][i]) || 0;
+                row.push(v); mSum += v;
+            }
+            let ytd = 0;
+            for(let m=0; m<=11; m++) {
+                if(db.monthsData[m]?.values[name]) ytd += db.monthsData[m].values[name].slice(0, db.monthsData[m].count).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            }
+            row.push(mSum, ytd);
+            rows.push(row);
+        });
 
-    function importData(event) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                db = JSON.parse(e.target.result);
-                localStorage.setItem('toolbox_2026_master', JSON.stringify(db));
-                location.reload();
-            } catch (err) { alert("Błąd pliku!"); }
-        };
-        reader.readAsText(event.target.files[0]);
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Toolbox");
+        XLSX.writeFile(wb, `Toolbox_2026_${months[curM].pl}.xlsx`);
     }
 
     function generatePDF() {
         const area = document.getElementById('printableArea');
-        const delBtns = document.querySelectorAll('.btn-del');
-        delBtns.forEach(b => b.style.display = 'none');
-        html2canvas(area, { scale: 2, width: 1550 }).then(canvas => {
+        html2canvas(area, { scale: 2 }).then(canvas => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a3');
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 10, 410, 0); 
             pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
-            delBtns.forEach(b => b.style.display = 'block');
         });
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const dl = document.createElement('a');
+        dl.setAttribute("href", dataStr);
+        dl.setAttribute("download", "toolbox_2026_backup.json");
+        dl.click();
     }
 
     window.onload = init;
