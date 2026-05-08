@@ -43,11 +43,11 @@
         th, td { border: 1px solid #444; padding: 6px 4px; text-align: center; overflow: hidden; }
         th { background: #eee; font-size: 13px; text-transform: uppercase; }
         
-        .col-lp { width: 40px; }
+        .col-lp { width: 45px; }
         .col-proj { width: 350px; text-align: left !important; padding-left: 10px; font-weight: bold; }
-        .col-sum { width: 70px; background: #f9f9f9; font-weight: bold; }
+        .col-sum { width: 85px; background: #f2f2f2; font-weight: bold; }
 
-        .cell-input { width: 90%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 16px; font-weight: bold; }
+        .cell-input { width: 95%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 16px; font-weight: bold; }
         .cell-input:focus { background: #fff9e6; border-color: var(--accent); }
 
         .tag-de { 
@@ -66,6 +66,8 @@
         .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; }
         .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
         .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .footer-row { background: #eee; font-weight: bold; font-size: 14px; }
 
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
@@ -120,6 +122,7 @@
     <table id="mainTable">
         <thead id="tableHead"></thead>
         <tbody id="tableBody"></tbody>
+        <tfoot id="tableFoot"></tfoot>
     </table>
 </div>
 
@@ -131,9 +134,31 @@
         {pl: "Październik", de: "Oktober"}, {pl: "Listopad", de: "November"}, {pl: "Grudzień", de: "Dezember"}
     ];
 
+    function toRoman(num) {
+        const map = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
+        let result = '';
+        for (let key in map) {
+            while (num >= map[key]) {
+                result += key;
+                num -= map[key];
+            }
+        }
+        return result;
+    }
+
+    // LISTA PROJEKTÓW Z TWOJEGO OBRAZKA
+    const initialProjects = [
+        "BLP SE", "Equinor kabel", "SE Leszno", "SE Polkowice", "Bolesławiec LE 110kV",
+        "Radzyń - Łuków LE 110kV", "SE Rokitnica", "LK Żarnowiec", "Bałtyk I", "SE Wierzbięcino",
+        "Stade DE", "CPK", "Eksploatacja", "BLP kabel", "Malchow Munsterberg DE", 
+        "Isolat_Seiltausch_Hamburg DE", "Avacon DE", "Borken DE", "Umrüstung UW Semlin DE",
+        "Karben DE", "Frankfurt DE", "Krosno", "Tausch DE", "UW Siedenbrünzow DE", 
+        "Ketten weschel Karbrn DE"
+    ];
+
     let db = JSON.parse(localStorage.getItem('toolbox_2026_a3')) || { 
-        projects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
-        visibleProjects: ["BLP SE", "Equinor", "Stade DE", "Avacon DE", "Bolesławiec"],
+        projects: initialProjects.sort(),
+        visibleProjects: [...initialProjects],
         monthsData: {} 
     };
     
@@ -159,12 +184,14 @@
 
     function sync() {
         if (!db.monthsData[curM]) {
-            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), colTitles: Array(15).fill(''), values: {} };
+            db.monthsData[curM] = { count: 5, colDates: Array(15).fill(''), colTitles: [], values: {} };
         }
-        // Kompatybilność wsteczna dla starych zapisów bez colTitles
-        if (!db.monthsData[curM].colTitles) db.monthsData[curM].colTitles = Array(15).fill('');
+        const mData = db.monthsData[curM];
+        if (!mData.colTitles || mData.colTitles.length === 0) {
+            mData.colTitles = Array.from({length: 15}, (_, i) => toRoman(i + 1));
+        }
         
-        document.getElementById('colCount').value = db.monthsData[curM].count;
+        document.getElementById('colCount').value = mData.count;
         renderFilterList();
         renderTable();
     }
@@ -218,7 +245,6 @@
         if (confirm(`Usunąć projekt ${name} na stałe z bazy?`)) {
             db.projects = db.projects.filter(p => p !== name);
             db.visibleProjects = db.visibleProjects.filter(p => p !== name);
-            renderFilterList();
             renderTable();
         }
     }
@@ -235,22 +261,27 @@
         
         const head = document.getElementById('tableHead');
         const body = document.getElementById('tableBody');
+        const foot = document.getElementById('tableFoot');
 
-        // Nagłówek z edytowalnym tytułem Toolbox
+        // Nagłówek
         let hRow = `<tr><th class="col-lp">LP</th><th class="col-proj">PROJEKT / BAUVORHABEN</th>`;
         for(let i=0; i < mData.count; i++) {
             let dateVal = mData.colDates[i] || '';
-            let titleVal = mData.colTitles[i] || `Nr ${i+1}`;
+            let titleVal = mData.colTitles[i] || toRoman(i+1);
             hRow += `<th>
                 <input type="text" class="cell-input" style="font-size:11px; margin-bottom:2px;" value="${titleVal}" onchange="db.monthsData[${curM}].colTitles[${i}]=this.value">
                 <input type="date" class="cell-input" style="font-size:10px;" value="${dateVal}" oninput="db.monthsData[${curM}].colDates[${i}]=this.value">
             </th>`;
         }
-        hRow += `<th class="col-sum">M-C</th><th class="col-sum">YTD</th></tr>`;
+        hRow += `<th class="col-sum">MIESIĄC<br><small>MONAT</small></th><th class="col-sum">ROCZNIE<br><small>JÄHRLICH</small></th></tr>`;
         head.innerHTML = hRow;
 
         body.innerHTML = '';
         const filteredProjects = db.projects.filter(p => db.visibleProjects.includes(p) && p.toLowerCase().includes(searchText));
+        
+        let colTotals = Array(mData.count).fill(0);
+        let grandMonthTotal = 0;
+        let grandYTDTotal = 0;
 
         filteredProjects.forEach((name, idx) => {
             if (!mData.values[name]) mData.values[name] = Array(15).fill('');
@@ -265,7 +296,11 @@
                 }
             }
 
-            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY');
+            grandMonthTotal += mSum;
+            grandYTDTotal += ytd;
+            for(let i=0; i<mData.count; i++) colTotals[i] += (parseFloat(rowVals[i]) || 0);
+
+            const isDE = name.toUpperCase().includes('DE') || name.toUpperCase().includes('NIEMCY') || name.toLowerCase().includes('hamburg') || name.toLowerCase().includes('semlin');
             const tr = document.createElement('tr');
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
@@ -274,18 +309,26 @@
                         </td>`;
             
             for(let i=0; i < mData.count; i++) {
-                // Używamy onchange zamiast oninput, aby pozwolić na wpisanie dwóch cyfr bez przerywania
                 html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
             html += `<td class="col-sum">${mSum}</td><td class="col-sum" style="color:var(--primary)">${ytd}</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
+
+        // Stopka z sumowaniem
+        let fRow = `<tr class="footer-row">
+            <td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
+        for(let i=0; i < mData.count; i++) {
+            fRow += `<td>${colTotals[i]}</td>`;
+        }
+        fRow += `<td>${grandMonthTotal}</td><td style="color:var(--primary)">${grandYTDTotal}</td></tr>`;
+        foot.innerHTML = fRow;
     }
 
     function saveData() {
         localStorage.setItem('toolbox_2026_a3', JSON.stringify(db));
-        alert("Dane zapisane pomyślnie!");
+        alert("Baza danych została zaktualizowana!");
     }
 
     function generatePDF() {
@@ -298,7 +341,7 @@
             const pdf = new jsPDF('l', 'mm', 'a3');
             const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
-            pdf.save(`Toolbox_Talk_2026_${months[curM].pl}.pdf`);
+            pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
             delButtons.forEach(b => b.style.display = 'block');
         });
     }
