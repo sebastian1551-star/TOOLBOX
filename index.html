@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox Manager 2026 - A3 Pro</title>
+    <title>Toolbox Manager 2026 - A3 PRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -40,20 +40,20 @@
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000; }
-        th, td { border: 1px solid #444; padding: 8px 4px; text-align: center; overflow: hidden; }
+        th, td { border: 1px solid #444; padding: 10px 4px; text-align: center; overflow: hidden; }
         th { background: #eee; font-size: 14px; text-transform: uppercase; }
         
         .col-lp { width: 45px; }
-        .col-proj { width: 380px; text-align: left !important; padding-left: 10px; font-weight: bold; font-size: 15px; }
-        .col-sum { width: 90px; background: #f2f2f2; font-weight: bold; }
+        .col-proj { width: 400px; text-align: left !important; padding-left: 10px; font-weight: bold; font-size: 16px; }
+        .col-sum { width: 95px; background: #f2f2f2; font-weight: bold; }
 
         .cell-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-size: 18px; font-weight: bold; }
         .header-input { 
-            width: 90%; border: 1px solid transparent; background: transparent; 
-            text-align: center; font-size: 22px; font-weight: 900; color: var(--primary); 
-            cursor: pointer;
+            width: 95%; border: 1px solid transparent; background: transparent; 
+            text-align: center; font-size: 24px; font-weight: 900; color: var(--primary); 
+            text-transform: uppercase;
         }
-        .header-input:hover { background: #e0e0e0; border-color: #999; }
+        .header-input:focus { background: #fff; border-color: var(--accent); outline: none; }
 
         .tag-de { 
             display: inline-block; background: #000; color: #ffce00; 
@@ -65,16 +65,14 @@
         .btn-pdf { background: var(--accent); }
         .btn-add { background: var(--success); }
         .btn-de { background: #444; margin-top: 5px; font-size: 10px; padding: 5px; }
-        .btn-del { background: none; color: var(--danger); font-size: 22px; border: none; cursor: pointer; line-height: 1; }
+        .btn-del { background: none; color: var(--danger); font-size: 24px; border: none; cursor: pointer; float: right; line-height: 1; }
         .btn:hover { opacity: 0.8; }
 
         .months-nav { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 15px; }
         .m-btn { padding: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
         .m-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .footer-row { background: #eee; font-weight: bold; font-size: 16px; }
-
-        .hint { font-size: 10px; color: #666; margin-top: 2px; display: block; font-weight: normal; }
+        .footer-row { background: #eee; font-weight: bold; font-size: 18px; }
 
         @media print {
             .no-print-zone, .btn-del { display: none !important; }
@@ -108,7 +106,7 @@
         </div>
 
         <div style="text-align: right;">
-            <label style="font-weight: bold; font-size: 12px;">LICZBA KOLUMN (SPOTKAŃ):</label><br>
+            <label style="font-weight: bold; font-size: 12px;">LICZBA KOLUMN:</label><br>
             <input type="number" id="colCount" value="5" min="1" max="15" onchange="updateColCount()" style="padding:8px; width:60px; margin-bottom: 10px;">
             <br>
             <button class="btn btn-save" onclick="saveData()">ZAPISZ BAZĘ</button>
@@ -163,7 +161,7 @@
         "Ketten weschel Karbrn DE"
     ];
 
-    let db = JSON.parse(localStorage.getItem('toolbox_2026_a3_final')) || { 
+    let db = JSON.parse(localStorage.getItem('toolbox_2026_final_v3')) || { 
         projects: initialProjects.sort(),
         visibleProjects: [...initialProjects],
         monthsData: {} 
@@ -201,10 +199,11 @@
         renderTable();
     }
 
-    // AUTO-UZUPEŁNIANIE RZYMSKICH
-    function autoFillRoman(startIndex) {
+    // AUTO-UZUPEŁNIANIE - uruchamia się przy zmianie lub double clicku
+    function triggerAutoFill(idx) {
         const mData = db.monthsData[curM];
-        for (let i = startIndex + 1; i < 15; i++) {
+        // Jeśli użytkownik wpisze coś w pole, zaczynamy od tego numeru generować kolejne rzymskie
+        for (let i = idx + 1; i < 15; i++) {
             mData.colTitles[i] = toRoman(i + 1);
         }
         renderTable();
@@ -225,10 +224,8 @@
             let titleVal = mData.colTitles[i] || toRoman(i+1);
             hRow += `<th>
                 <input type="text" class="header-input" value="${titleVal}" 
-                       onchange="db.monthsData[${curM}].colTitles[${i}]=this.value"
-                       onclick="autoFillRoman(${i})"
-                       title="Kliknij, aby uzupełnić resztę automatycznie">
-                <span class="hint">KLIKNIJ AUTO</span>
+                       onchange="db.monthsData[${curM}].colTitles[${i}]=this.value; triggerAutoFill(${i})"
+                       ondblclick="triggerAutoFill(${i})">
             </th>`;
         }
         hRow += `<th class="col-sum">MIESIĄC<br><small>MONAT</small></th><th class="col-sum">ROCZNIE<br><small>JÄHRLICH</small></th></tr>`;
@@ -263,13 +260,13 @@
             let html = `<td class="col-lp">${idx + 1}</td>
                         <td class="col-proj">
                             ${name} ${isDE ? '<span class="tag-de">DE</span>' : ''}
-                            <button class="btn-del" onclick="removeProject('${name}')" style="float:right">×</button>
+                            <button class="btn-del" onclick="removeProject('${name}')">×</button>
                         </td>`;
             
             for(let i=0; i < mData.count; i++) {
                 html += `<td><input type="number" class="cell-input" value="${rowVals[i]}" onchange="db.monthsData[${curM}].values['${name}'][${i}]=this.value; renderTable()"></td>`;
             }
-            html += `<td class="col-sum" style="font-size:18px;">${mSum}</td><td class="col-sum" style="color:var(--primary); font-size:18px;">${ytd}</td>`;
+            html += `<td class="col-sum" style="font-size:20px;">${mSum}</td><td class="col-sum" style="color:var(--primary); font-size:20px;">${ytd}</td>`;
             tr.innerHTML = html;
             body.appendChild(tr);
         });
@@ -277,9 +274,9 @@
         let fRow = `<tr class="footer-row">
             <td colspan="2" style="text-align:right; padding-right:15px;">SUMA / GESAMT:</td>`;
         for(let i=0; i < mData.count; i++) {
-            fRow += `<td style="font-size:20px;">${colTotals[i]}</td>`;
+            fRow += `<td style="font-size:22px;">${colTotals[i]}</td>`;
         }
-        fRow += `<td style="font-size:20px;">${grandMonthTotal}</td><td style="color:var(--primary); font-size:20px;">${grandYTDTotal}</td></tr>`;
+        fRow += `<td style="font-size:22px;">${grandMonthTotal}</td><td style="color:var(--primary); font-size:22px;">${grandYTDTotal}</td></tr>`;
         foot.innerHTML = fRow;
     }
 
@@ -330,7 +327,7 @@
     }
 
     function filterDE() {
-        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY'));
+        db.visibleProjects = db.projects.filter(p => p.toUpperCase().includes('DE') || p.toUpperCase().includes('NIEMCY') || p.toLowerCase().includes('hamburg') || p.toLowerCase().includes('semlin'));
         renderFilterList(); renderTable();
     }
 
@@ -340,17 +337,14 @@
     }
 
     function saveData() {
-        localStorage.setItem('toolbox_2026_a3_final', JSON.stringify(db));
-        alert("Zapisano pomyślnie!");
+        localStorage.setItem('toolbox_2026_final_v3', JSON.stringify(db));
+        alert("Baza została zapisana!");
     }
 
     function generatePDF() {
         const area = document.getElementById('printableArea');
         const delBtns = document.querySelectorAll('.btn-del');
-        const hints = document.querySelectorAll('.hint');
-        
         delBtns.forEach(b => b.style.display = 'none');
-        hints.forEach(h => h.style.display = 'none');
 
         html2canvas(area, { scale: 2, useCORS: true, width: 1580 }).then(canvas => {
             const { jsPDF } = window.jspdf;
@@ -358,9 +352,7 @@
             const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 5, 10, 410, 0); 
             pdf.save(`Toolbox_2026_${months[curM].pl}.pdf`);
-            
             delBtns.forEach(b => b.style.display = 'block');
-            hints.forEach(h => h.style.display = 'block');
         });
     }
 
